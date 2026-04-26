@@ -98,6 +98,28 @@
         .provider-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
         .dot-on { background: #22c55e; }
         .dot-off { background: #d1d5db; }
+
+        /* ---- Custom Button Editor ---- */
+        .editor-list { list-style: none; padding: 0; margin: 0; }
+        .editor-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #e5e7eb; }
+        .dark .editor-item { border-color: #374151; }
+        .editor-item-icon { font-size: 28px; width: 40px; text-align: center; flex-shrink: 0; }
+        .editor-item-info { flex: 1; min-width: 0; }
+        .editor-item-label { font-weight: 600; font-size: 14px; }
+        .editor-item-phrase { font-size: 12px; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .editor-btns { display: flex; gap: 6px; flex-shrink: 0; }
+        .editor-btn { padding: 7px 11px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        .editor-btn-edit { background: #dbeafe; color: #1d4ed8; }
+        .editor-btn-del  { background: #fee2e2; color: #dc2626; }
+        .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; margin: 8px 0; }
+        .emoji-opt { font-size: 22px; text-align: center; padding: 5px 2px; cursor: pointer; border-radius: 6px; border: 2px solid transparent; transition: border-color 0.1s; user-select: none; }
+        .emoji-opt:hover, .emoji-opt.selected { border-color: #3b82f6; background: #eff6ff; }
+        .color-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin: 8px 0; }
+        .color-swatch { height: 32px; border-radius: 8px; cursor: pointer; border: 3px solid transparent; transition: border-color 0.1s; }
+        .color-swatch.selected { border-color: #1e293b; }
+        #customButtons { margin-top: 4px; }
+        #customButtons .btn { border-top-color: #7c3aed; }
+        .custom-section-label { text-align: center; font-size: 12px; font-weight: 600; color: #7c3aed; letter-spacing: 0.05em; padding: 6px 0 0; }
     </style>
 </head>
 
@@ -129,6 +151,12 @@
 
     <!-- SECONDARY BUTTONS (hidden by default) -->
     <div class="grid secondary-grid" id="secondaryButtons"></div>
+
+    <!-- CUSTOM BUTTONS -->
+    <div id="customSection" style="display:none;">
+      <div class="custom-section-label">✨ My Buttons</div>
+      <div class="grid" id="customButtons"></div>
+    </div>
 
     <!-- AI SUGGESTION CHIPS -->
     <div id="aiChips" class="hidden"></div>
@@ -237,13 +265,11 @@
                 </div>
             </div>
 
-            <div style="margin-top: 16px; padding: 10px; background: #fef9c3; border-radius: 8px; font-size: 12px; color: #92400e;">
-                ⚠️ API keys are pre-loaded. Do not share this app's source HTML publicly.
-            </div>
-
             <div style="margin-top: 12px; padding: 12px; background: #f3f4f6; border-radius: 8px; font-size: 13px; color: #6b7280;">
                 V.O.N.N.I.E. works fully offline. All phrases are saved on your device.
             </div>
+
+            <button onclick="openBtnEditor()" style="width:100%;padding:14px;background:#f0fdf4;border:2px solid #22c55e;border-radius:10px;color:#15803d;font-size:15px;font-weight:700;cursor:pointer;margin-top:20px;">✏️ Edit My Buttons</button>
         </div>
     </div>
 
@@ -273,6 +299,57 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                 <button onclick="cancelCall()" style="padding: 16px; background: #fee2e2; border: 2px solid #ef4444; border-radius: 12px; color: #dc2626; font-weight: bold; cursor: pointer; font-size: 18px;">✗ Cancel</button>
                 <button id="callNowBtn" onclick="callNow()" style="padding: 16px; background: #dcfce7; border: 2px solid #22c55e; border-radius: 12px; color: #16a34a; font-weight: bold; cursor: pointer; font-size: 18px;">📞 Call</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BUTTON EDITOR MODAL -->
+    <div id="btnEditorModal" class="modal" onclick="closeBtnEditor()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h2 style="font-size:20px;">✏️ My Buttons</h2>
+                <button onclick="closeBtnEditor()" style="font-size:26px;background:none;border:none;cursor:pointer;line-height:1;">&times;</button>
+            </div>
+            <button onclick="openBtnForm(-1)" style="width:100%;padding:13px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:10px;font-size:15px;font-weight:bold;cursor:pointer;margin-bottom:14px;">➕ Add New Button</button>
+            <ul class="editor-list" id="editorList"></ul>
+            <p id="editorEmpty" style="text-align:center;color:#9ca3af;padding:20px 0;display:none;">No custom buttons yet.<br>Tap ➕ to add your first one.</p>
+        </div>
+    </div>
+
+    <!-- BUTTON FORM MODAL -->
+    <div id="btnFormModal" class="modal" onclick="closeBtnForm()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                <h2 style="font-size:18px;" id="btnFormTitle">Add Button</h2>
+                <button onclick="closeBtnForm()" style="font-size:26px;background:none;border:none;cursor:pointer;line-height:1;">&times;</button>
+            </div>
+
+            <label style="display:block;font-weight:600;font-size:13px;margin-bottom:4px;">Emoji Icon</label>
+            <div class="emoji-grid" id="emojiGrid"></div>
+            <input id="btnEmoji" placeholder="Or type / paste any emoji here" spellcheck="false"
+                   style="width:100%;padding:10px;margin:4px 0 14px;border:1px solid #d1d5db;border-radius:8px;font-size:22px;text-align:center;"
+                   oninput="syncEmojiFromInput(this.value)">
+
+            <label style="display:block;font-weight:600;font-size:13px;margin-bottom:4px;">Button Label <span style="color:#9ca3af;font-weight:400;">(20 chars max)</span></label>
+            <input id="btnLabel" placeholder="e.g. Favorite Show" maxlength="20" spellcheck="true" lang="en"
+                   style="width:100%;padding:10px;margin:4px 0 14px;border:1px solid #d1d5db;border-radius:8px;font-size:16px;">
+
+            <label style="display:block;font-weight:600;font-size:13px;margin-bottom:4px;">Phrase to Speak</label>
+            <textarea id="btnPhrase" placeholder="e.g. I want to watch my favorite show, please." rows="2" maxlength="200"
+                      spellcheck="true" lang="en"
+                      style="width:100%;padding:10px;margin:4px 0 14px;border:1px solid #d1d5db;border-radius:8px;font-size:16px;resize:none;font-family:inherit;"></textarea>
+
+            <label style="display:block;font-weight:600;font-size:13px;margin-bottom:4px;">Button Color</label>
+            <div class="color-grid" id="colorGrid"></div>
+
+            <div style="margin-top:6px;padding:8px;background:#f0fdf4;border-radius:8px;display:flex;align-items:center;gap:10px;" id="btnPreview">
+                <span id="previewIcon" style="font-size:28px;">⭐</span>
+                <span id="previewLabel" style="font-weight:600;font-size:14px;color:#1e293b;">Button Label</span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;">
+                <button onclick="closeBtnForm()" style="padding:13px;background:#f3f4f6;border:2px solid #d1d5db;border-radius:10px;font-size:15px;font-weight:bold;cursor:pointer;">Cancel</button>
+                <button onclick="saveBtnForm()" style="padding:13px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:10px;font-size:15px;font-weight:bold;cursor:pointer;">✅ Save</button>
             </div>
         </div>
     </div>
@@ -390,6 +467,7 @@
             loadProviderSettings();
             renderButtons(primaryButtons, 'buttons');
             renderButtons(secondaryButtons, 'secondaryButtons');
+            renderCustomButtons();
             loadVoices();
             updateUIFromSettings();
             updateConnectionStatus();
@@ -903,6 +981,207 @@
                 e.preventDefault();
                 submitSayAnything();
             }
+        });
+
+        /* ============================
+           CUSTOM BUTTON EDITOR
+        ============================ */
+        const EMOJI_PRESETS = [
+            '😊','❤️','🙏','👍','👎','😢','😡','🎵','📺','🏠',
+            '🌞','🌙','🍕','🥤','💊','📞','🚿','🛁','👗','🌳',
+            '❄️','🔥','🎮','📖','✈️','🐕','😴','🎉','💪','🤔',
+            '👋','🤗','😮','💔','🌹','⭐','🏥','🚑','🍽️','🪴'
+        ];
+        const COLOR_PRESETS = [
+            { bg: '#dbeafe', accent: '#2563eb' },
+            { bg: '#dcfce7', accent: '#16a34a' },
+            { bg: '#fef3c7', accent: '#d97706' },
+            { bg: '#fce7f3', accent: '#be185d' },
+            { bg: '#f3e8ff', accent: '#7c3aed' },
+            { bg: '#cffafe', accent: '#0891b2' },
+            { bg: '#fee2e2', accent: '#dc2626' },
+            { bg: '#e0e7ff', accent: '#4338ca' },
+            { bg: '#fef9c3', accent: '#92400e' },
+            { bg: '#f1f5f9', accent: '#475569' },
+            { bg: '#d1fae5', accent: '#065f46' },
+            { bg: '#ffe4e6', accent: '#e11d48' },
+        ];
+
+        let customButtons = JSON.parse(localStorage.getItem('vonnie_custom_buttons') || '[]');
+        let editingBtnIdx = -1;
+        let selectedEmoji = '⭐';
+        let selectedColorIdx = 0;
+
+        function saveCustomButtons() {
+            localStorage.setItem('vonnie_custom_buttons', JSON.stringify(customButtons));
+        }
+
+        function renderCustomButtons() {
+            const section = document.getElementById('customSection');
+            const grid    = document.getElementById('customButtons');
+            if (!customButtons.length) { section.style.display = 'none'; return; }
+            section.style.display = '';
+            const list = customButtons.map((b, i) => ({
+                id: 'custom_' + i,
+                icon: `<span style="font-size:34px;line-height:1;">${b.emoji}</span>`,
+                label: b.label,
+                phrase: b.phrase,
+                color: b.color  || '#f8fafc',
+                accent: b.accent || '#3b82f6'
+            }));
+            renderButtons(list, 'customButtons');
+        }
+
+        /* ---- Editor list modal ---- */
+        function openBtnEditor() {
+            hideSettings();
+            renderEditorList();
+            document.getElementById('btnEditorModal').classList.add('show');
+        }
+        function closeBtnEditor() {
+            document.getElementById('btnEditorModal').classList.remove('show');
+        }
+        function renderEditorList() {
+            const list  = document.getElementById('editorList');
+            const empty = document.getElementById('editorEmpty');
+            list.innerHTML = '';
+            if (!customButtons.length) { empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+            customButtons.forEach((b, i) => {
+                const li = document.createElement('li');
+                li.className = 'editor-item';
+                li.innerHTML = `
+                    <div class="editor-item-icon">${b.emoji}</div>
+                    <div class="editor-item-info">
+                        <div class="editor-item-label">${b.label}</div>
+                        <div class="editor-item-phrase">${b.phrase}</div>
+                    </div>
+                    <div class="editor-btns">
+                        <button class="editor-btn editor-btn-edit" onclick="openBtnForm(${i})">✏️</button>
+                        <button class="editor-btn editor-btn-del"  onclick="deleteBtnAt(${i})">🗑️</button>
+                    </div>`;
+                list.appendChild(li);
+            });
+        }
+        function deleteBtnAt(i) {
+            if (!confirm('Remove "' + customButtons[i].label + '"?')) return;
+            customButtons.splice(i, 1);
+            saveCustomButtons();
+            renderEditorList();
+            renderCustomButtons();
+        }
+
+        /* ---- Add / Edit form modal ---- */
+        function openBtnForm(idx) {
+            editingBtnIdx = idx;
+            const isEdit = idx >= 0;
+            document.getElementById('btnFormTitle').textContent = isEdit ? '✏️ Edit Button' : '➕ New Button';
+
+            // Build emoji grid
+            const eg = document.getElementById('emojiGrid');
+            eg.innerHTML = '';
+            EMOJI_PRESETS.forEach(em => {
+                const d = document.createElement('div');
+                d.className = 'emoji-opt';
+                d.textContent = em;
+                d.addEventListener('click', () => selectEmoji(em));
+                eg.appendChild(d);
+            });
+
+            // Build color grid
+            const cg = document.getElementById('colorGrid');
+            cg.innerHTML = '';
+            COLOR_PRESETS.forEach((c, ci) => {
+                const d = document.createElement('div');
+                d.className = 'color-swatch';
+                d.style.background = c.bg;
+                d.addEventListener('click', () => selectColor(ci));
+                cg.appendChild(d);
+            });
+
+            if (isEdit) {
+                const b = customButtons[idx];
+                selectedEmoji    = b.emoji;
+                selectedColorIdx = Math.max(0, COLOR_PRESETS.findIndex(c => c.bg === b.color));
+                document.getElementById('btnEmoji').value  = b.emoji;
+                document.getElementById('btnLabel').value  = b.label;
+                document.getElementById('btnPhrase').value = b.phrase;
+            } else {
+                selectedEmoji    = '⭐';
+                selectedColorIdx = 0;
+                document.getElementById('btnEmoji').value  = '⭐';
+                document.getElementById('btnLabel').value  = '';
+                document.getElementById('btnPhrase').value = '';
+            }
+            applyEmojiSelection();
+            applyColorSelection();
+            updatePreview();
+            document.getElementById('btnFormModal').classList.add('show');
+            setTimeout(() => document.getElementById('btnLabel').focus(), 150);
+        }
+        function closeBtnForm() {
+            document.getElementById('btnFormModal').classList.remove('show');
+        }
+
+        function selectEmoji(em) {
+            selectedEmoji = em;
+            document.getElementById('btnEmoji').value = em;
+            applyEmojiSelection();
+            updatePreview();
+        }
+        function syncEmojiFromInput(val) {
+            const em = [...val].find(c => c.codePointAt(0) > 0xFF) || val;
+            if (em) { selectedEmoji = em; applyEmojiSelection(); updatePreview(); }
+        }
+        function applyEmojiSelection() {
+            document.querySelectorAll('.emoji-opt').forEach(x => {
+                x.classList.toggle('selected', x.textContent === selectedEmoji);
+            });
+        }
+        function selectColor(ci) {
+            selectedColorIdx = ci;
+            applyColorSelection();
+            updatePreview();
+        }
+        function applyColorSelection() {
+            document.querySelectorAll('.color-swatch').forEach((x, xi) => {
+                const on = xi === selectedColorIdx;
+                x.classList.toggle('selected', on);
+                x.style.border = '3px solid ' + (on ? COLOR_PRESETS[xi].accent : 'transparent');
+            });
+        }
+        function updatePreview() {
+            const label = document.getElementById('btnLabel').value || 'My Button';
+            const color = COLOR_PRESETS[selectedColorIdx] || COLOR_PRESETS[0];
+            const preview = document.getElementById('btnPreview');
+            preview.style.background = color.bg;
+            preview.style.border = '2px solid ' + color.accent;
+            document.getElementById('previewIcon').textContent  = selectedEmoji;
+            document.getElementById('previewLabel').textContent = label;
+        }
+
+        function saveBtnForm() {
+            const emoji  = (document.getElementById('btnEmoji').value.trim()  || '⭐').slice(0, 4);
+            const label  =  document.getElementById('btnLabel').value.trim();
+            const phrase =  document.getElementById('btnPhrase').value.trim();
+            if (!label)  { alert('Please enter a button label.');    return; }
+            if (!phrase) { alert('Please enter a phrase to speak.'); return; }
+            const color = COLOR_PRESETS[selectedColorIdx] || COLOR_PRESETS[0];
+            const btn = { emoji, label, phrase, color: color.bg, accent: color.accent };
+            if (editingBtnIdx >= 0) {
+                customButtons[editingBtnIdx] = btn;
+            } else {
+                customButtons.push(btn);
+            }
+            saveCustomButtons();
+            renderEditorList();
+            renderCustomButtons();
+            closeBtnForm();
+        }
+
+        // Live preview on label typing
+        document.addEventListener('input', e => {
+            if (e.target.id === 'btnLabel') updatePreview();
         });
 
         /* ============================
