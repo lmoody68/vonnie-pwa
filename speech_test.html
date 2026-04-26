@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Speech Synthesis Diagnostics</title>
+  <style>
+    body { font-family: sans-serif; margin: 1.5em; max-width: 640px; }
+    h1 { font-size: 1.4em; }
+    button { font-size: 1.1em; padding: 0.6em 1.2em; margin: 0.3em 0.2em 0.3em 0; cursor: pointer; }
+    #log  { margin-top: 1em; background: #111; color: #0f0; font-family: monospace;
+            font-size: 0.85em; padding: 0.8em; border-radius: 6px; white-space: pre-wrap;
+            min-height: 6em; max-height: 40vh; overflow-y: auto; }
+    #voices { margin-top: 1em; font-size: 0.9em; }
+    .ok  { color: #2a2; font-weight: bold; }
+    .err { color: #c00; font-weight: bold; }
+    .warn{ color: #a60; font-weight: bold; }
+    table { border-collapse: collapse; font-size: 0.85em; width: 100%; margin-top: 0.5em; }
+    td, th { border: 1px solid #ccc; padding: 3px 6px; text-align: left; }
+    th { background: #eee; }
+  </style>
+</head>
+<body>
+  <h1>Speech Synthesis Diagnostics</h1>
+
+  <div id="support"></div>
+
+  <p>
+    <button id="btnSpeak">&#9654; Speak test</button>
+    <button id="btnStop">&#9632; Stop</button>
+    <button id="btnClear">Clear log</button>
+  </p>
+
+  <div id="log"></div>
+  <div id="voices"></div>
+
+<script>
+/* ---------- helpers ---------- */
+const log = (msg, cls) => {
+  const el = document.getElementById('log');
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.textContent = new Date().toLocaleTimeString() + '  ' + msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+};
+
+/* ---------- environment info ---------- */
+(function showEnv() {
+  const ua = navigator.userAgent;
+  const isIOS  = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/.test(ua);
+  const isSafari  = /Safari/.test(ua) && !/Chrome/.test(ua);
+
+  const el = document.getElementById('support');
+  const hasAPI = 'speechSynthesis' in window;
+
+  el.innerHTML = `<b>Environment</b><br>
+    Platform: ${isIOS ? 'iOS/iPadOS' : isAndroid ? 'Android' : 'Desktop'} &nbsp;
+    Browser: ${isSafari ? 'Safari' : /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : 'Other'}<br>
+    speechSynthesis API: <span class="${hasAPI ? 'ok' : 'err'}">${hasAPI ? 'AVAILABLE' : 'NOT AVAILABLE — speech cannot work on this browser'}</span>`;
+
+  if (isIOS) {
+    el.innerHTML += `<br><span class="warn">iOS/iPadOS note: speech only works via a real tap (not programmatic). Also check that the <b>silent/mute switch</b> (or Focus mode) is OFF and media volume is up.</span>`;
+  }
+
+  log('UA: ' + ua);
+  log('speechSynthesis available: ' + hasAPI, hasAPI ? 'ok' : 'err');
+  log('paused: ' + (hasAPI ? window.speechSynthesis.paused : 'n/a'));
+  log('speaking: ' + (hasAPI ? window.speechSynthesis.speaking : 'n/a'));
+  log('pending: ' + (hasAPI ? window.speechSynthesis.pending : 'n/a'));
+})();
+
+/* ---------- voice list ---------- */
+function showVoices() {
+  const voices = window.speechSynthesis.getVoices();
+  const div = document.getElementById('voices');
+  if (!voices.length) {
+    div.innerHTML = '<span class="warn">No voices loaded yet (may load after first speak attempt on some browsers).</span>';
+    return;
+  }
+  let html = `<b>${voices.length} voice(s) available:</b>`;
+  html += '<table><tr><th>#</th><th>Name</th><th>Lang</th><th>Local?</th><th>Default?</th></tr>';
+  voices.forEach((v, i) => {
+    html += `<tr><td>${i}</td><td>${v.name}</td><td>${v.lang}</td><td>${v.localService ? 'yes' : 'no'}</td><td>${v.default ? '&#10003;' : ''}</td></tr>`;
+  });
+  html += '</table>';
+  div.innerHTML = html;
+  log('Voices loaded: ' + voices.length);
+}
+
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = showVoices;
+  showVoices();
+}
+
+/* ---------- speak ---------- */
+document.getElementById('btnSpeak').addEventListener('click', () => {
+  if (!('speechSynthesis' in window)) { log('ERROR: API not available', 'err'); return; }
+
+  const ss = window.speechSynthesis;
+  log('--- tap received ---');
+  log('state before: paused=' + ss.paused + ' speaking=' + ss.speaking + ' pending=' + ss.pending);
+
+  // iOS workaround: cancel any stuck queue then resume
+  ss.cancel();
+  log('called cancel()');
+
+  const voices = ss.getVoices();
+  log('voices at speak time: ' + voices.length);
+
+  const utt = new SpeechSynthesisUtterance('Hello! Speech synthesis is working. V O N N I E can talk.');
+  utt.lang = 'en-US';
+  utt.rate = 0.95;
+  utt.pitch = 1.0;
+  utt.volume = 1.0;
+
+  // Try to pick a local English voice if available
+  const local = voices.find(v => v.lang.startsWith('en') && v.localService);
+  const anyEn = voices.find(v => v.lang.startsWith('en'));
+  if (local) { utt.voice = local; log('Using local voice: ' + local.name); }
+  else if (anyEn) { utt.voice = anyEn; log('Using voice: ' + anyEn.name); }
+  else { log('No English voice found — using browser default'); }
+
+  utt.onstart  = () => log('onstart fired  ✓', 'ok');
+  utt.onend    = () => { log('onend fired    ✓ — speech complete', 'ok'); showVoices(); };
+  utt.onerror  = (e) => log('onerror: ' + e.error, 'err');
+  utt.onpause  = () => log('onpause fired', 'warn');
+  utt.onresume = () => log('onresume fired');
+  utt.onboundary = (e) => log('boundary: ' + e.name + ' @char ' + e.charIndex);
+
+  ss.speak(utt);
+  log('speak() called');
+  log('state after: paused=' + ss.paused + ' speaking=' + ss.speaking + ' pending=' + ss.pending);
+
+  // iOS workaround: if still paused 250 ms later, resume it
+  setTimeout(() => {
+    if (ss.paused) { ss.resume(); log('called resume() — was paused', 'warn'); }
+  }, 250);
+});
+
+document.getElementById('btnStop').addEventListener('click', () => {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  log('cancel() called — stopped');
+});
+
+document.getElementById('btnClear').addEventListener('click', () => {
+  document.getElementById('log').innerHTML = '';
+});
+</script>
+</body>
+</html>

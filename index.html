@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4a90d9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="description" content="VONNIE - Voice Output Neural Navigator Interface Environment. Always here for you.">
+    <link rel="manifest" href="manifest.json">
+    <title>V.O.N.N.I.E.</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; overscroll-behavior: none; }
+        .dark body { background: #111827; }
+        .dark { background: #111827; color: white; }
+        .btn { border: 1px solid rgba(0,0,0,0.1); border-top: 5px solid #3b82f6; border-radius: 10px; height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background: white; box-shadow: 0 1px 4px rgba(0,0,0,0.07); transition: transform 0.08s, filter 0.08s, box-shadow 0.08s; user-select: none; -webkit-user-select: none; padding: 8px 4px; }
+        .btn:active, .btn.pressed { transform: scale(0.96); filter: brightness(0.91); box-shadow: inset 0 1px 4px rgba(0,0,0,0.14); }
+        .dark .btn { background: #1e293b; color: white; border-color: rgba(255,255,255,0.1); }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 14px; max-width: 860px; margin: 0 auto; }
+        #buttons { grid-template-columns: repeat(4, 1fr); }
+        .icon { width: 46px; height: 46px; margin: 0 auto 5px; pointer-events: none; display: flex; align-items: center; justify-content: center; font-size: 36px; flex-shrink: 0; }
+        .icon svg { width: 100%; height: 100%; display: block; }
+        .label { font-size: 12px; font-weight: 600; text-align: center; line-height: 1.25; pointer-events: none; color: #1e293b; letter-spacing: 0.01em; }
+        .dark .label { color: #e2e8f0; }
+        .header { background: white; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+        .dark .header { background: #1f2937; color: white; }
+        .speaking { animation: pulse 1.5s infinite; background: #4ade80 !important; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 200; }
+        .modal.show { display: flex; }
+        .modal-content { background: white; padding: 24px; border-radius: 16px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+        .dark .modal-content { background: #1f2937; color: white; }
+        input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+        .dark input, .dark select { background: #374151; color: white; border-color: #4b5563; }
+        .row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #e5e7eb; }
+        .dark .row { border-color: #374151; }
+        .welcome { position: fixed; inset: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; z-index: 300; color: white; text-align: center; transition: opacity 0.8s ease; }
+        .hidden { display: none !important; }
+        .toggle-switch { width: 50px; height: 28px; background: #ccc; border-radius: 14px; position: relative; cursor: pointer; transition: background 0.3s; flex-shrink: 0; }
+        .toggle-switch.active { background: #4ade80; }
+        .toggle-switch::after { content: ''; position: absolute; width: 24px; height: 24px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: transform 0.3s; }
+        .toggle-switch.active::after { transform: translateX(22px); }
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e5e7eb; padding: 12px; text-align: center; font-size: 12px; color: #6b7280; }
+        .dark .footer { background: #1f2937; border-color: #374151; color: #9ca3af; }
+        .secondary-grid { display: none; }
+        .secondary-grid.visible { display: grid; }
+
+        /* ---- AI Chips ---- */
+        #aiChips { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 16px 12px; max-width: 800px; margin: 0 auto; }
+        .chips-label { font-size: 13px; color: #6b7280; font-weight: 600; width: 100%; margin-bottom: 2px; }
+        .ai-chip { background: #eff6ff; border: 2px solid #3b82f6; border-radius: 24px; padding: 10px 18px; font-size: 15px; font-weight: 600; color: #1d4ed8; cursor: pointer; transition: all 0.1s; user-select: none; -webkit-user-select: none; }
+        .ai-chip:active, .ai-chip.chip-pressed { background: #3b82f6; color: white; transform: scale(0.95); }
+        .dark .ai-chip { background: #1e3a5f; border-color: #60a5fa; color: #93c5fd; }
+        .dark .ai-chip:active, .dark .ai-chip.chip-pressed { background: #3b82f6; color: white; }
+
+        /* ---- Say Anything button ---- */
+        .say-anything-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 12px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 12px; transition: filter 0.1s; }
+        .say-anything-btn:active { filter: brightness(0.88); }
+
+        /* ---- AI status badge ---- */
+        #aiStatus { font-size: 11px; color: #6b7280; margin-top: 2px; }
+
+        /* ---- AI loading spinner ---- */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .ai-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #d1d5db; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+
+        /* ---- Say Anything modal extras ---- */
+        #sayAnythingInput { width: 100%; padding: 14px; font-size: 18px; border: 2px solid #d1d5db; border-radius: 10px; margin: 12px 0; resize: none; font-family: inherit; }
+        .dark #sayAnythingInput { background: #374151; color: white; border-color: #4b5563; }
+        #sayAnythingResult { min-height: 48px; padding: 10px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; font-size: 16px; color: #166534; display: none; margin-bottom: 12px; }
+        #sayAnythingResult.show { display: block; }
+        .dark #sayAnythingResult { background: #14532d; border-color: #22c55e; color: #86efac; }
+
+        /* ---- Landscape layout ---- */
+        @media (orientation: landscape) {
+            .header { padding: 8px 16px; }
+            .header > div > div:first-child { font-size: 15px; }
+            #connectionStatus, #aiStatus { font-size: 10px; }
+            #statusOrb { width: 34px; height: 34px; font-size: 16px; }
+            .grid { gap: 6px; padding: 6px 10px; }
+            #buttons { grid-template-columns: repeat(4, 1fr); }
+            .btn { height: 80px; border-radius: 8px; border-top-width: 3px; padding: 4px 2px; }
+            .icon { width: 34px; height: 34px; margin-bottom: 2px; }
+            .label { font-size: 10px; }
+            #aiChips { padding: 2px 12px 8px; gap: 6px; }
+            .ai-chip { padding: 7px 14px; font-size: 14px; }
+            .say-anything-btn { padding: 11px 16px; font-size: 15px; margin-bottom: 8px; }
+            #moreBtn { padding: 11px 16px; font-size: 15px; margin-bottom: 8px; }
+            .footer { padding: 7px; font-size: 11px; }
+            /* Controls row — stack STOP/REPEAT horizontally and reduce padding */
+            div[style*="margin-bottom: 60px"] { margin-bottom: 48px !important; padding: 8px 12px !important; }
+        }
+
+        /* ---- AI settings section ---- */
+        .ai-provider-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #f3f4f6; }
+        .dark .ai-provider-row { border-color: #374151; }
+        .provider-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .dot-on { background: #22c55e; }
+        .dot-off { background: #d1d5db; }
+    </style>
+</head>
+
+<body>
+    <!-- WELCOME SPLASH -->
+    <div id="welcome" class="welcome">
+        <div>
+            <div style="width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.22);border:2px solid rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:44px;font-weight:700;letter-spacing:-1px;color:white;">V</div>
+            <h1 style="font-size:40px;margin-bottom:10px;font-weight:300;letter-spacing:6px;">V.O.N.N.I.E.</h1>
+            <p style="font-size:17px;opacity:0.85;font-weight:300;letter-spacing:1px;">Always here for you</p>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div id="statusOrb" style="width: 44px; height: 44px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; transition: background 0.3s;">V</div>
+            <div>
+                <div style="font-weight: bold; font-size: 18px;">V.O.N.N.I.E.</div>
+                <div id="connectionStatus" style="font-size: 12px; color: #6b7280;">Ready</div>
+                <div id="aiStatus">🤖 AI Ready</div>
+            </div>
+        </div>
+        <button onclick="showSettings()" style="font-size: 24px; background: none; border: none; cursor: pointer; padding: 8px;" aria-label="Settings">⚙️</button>
+    </div>
+
+    <!-- PRIMARY BUTTONS -->
+    <div class="grid" id="buttons"></div>
+
+    <!-- SECONDARY BUTTONS (hidden by default) -->
+    <div class="grid secondary-grid" id="secondaryButtons"></div>
+
+    <!-- AI SUGGESTION CHIPS -->
+    <div id="aiChips" class="hidden"></div>
+
+    <!-- CONTROLS -->
+    <div style="padding: 16px; max-width: 800px; margin: 0 auto; margin-bottom: 60px;">
+        <button onclick="showSayAnything()" class="say-anything-btn">💬 Say Anything</button>
+        <button onclick="toggleMore()" id="moreBtn" style="width: 100%; padding: 16px; background: #e5e7eb; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 12px;">
+            ➕ More Options
+        </button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <button onclick="stopSpeaking()" style="padding: 16px; background: #fee2e2; border: 2px solid #ef4444; border-radius: 12px; color: #dc2626; font-weight: bold; cursor: pointer; font-size: 16px;">⏹️ STOP</button>
+            <button onclick="repeatLast()" style="padding: 16px; background: #dbeafe; border: 2px solid #3b82f6; border-radius: 12px; color: #2563eb; font-weight: bold; cursor: pointer; font-size: 16px;">🔁 REPEAT</button>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        V.O.N.N.I.E. — Voice Output Neural Navigator Interface Environment &nbsp;|&nbsp; "Always here for you"
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="modal" onclick="hideSettings()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-size: 24px;">⚙️ Settings</h2>
+                <button onclick="hideSettings()" style="font-size: 28px; background: none; border: none; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+
+            <div class="row">
+                <span>Dark Mode</span>
+                <div class="toggle-switch" id="darkModeToggle" onclick="toggleSetting('darkMode')" role="switch" aria-label="Dark mode"></div>
+            </div>
+
+            <div class="row">
+                <span>Auto-Call Family (shows call prompt)</span>
+                <div class="toggle-switch" id="autoCallToggle" onclick="toggleSetting('autoCall')" role="switch" aria-label="Auto call"></div>
+            </div>
+
+            <div style="margin: 16px 0;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Voice Speed: <span id="speedValue">0.9</span>x</label>
+                <input type="range" id="voiceSpeed" min="0.5" max="1.5" step="0.1" value="0.9" oninput="liveSpeed(this.value)" onchange="updateSetting('voiceSpeed', parseFloat(this.value))">
+            </div>
+
+            <div style="margin: 16px 0;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Voice</label>
+                <select id="voiceSelect" onchange="updateSetting('selectedVoice', this.value || null)">
+                    <option value="">Default System Voice</option>
+                </select>
+            </div>
+
+            <h3 style="margin-top: 24px; margin-bottom: 12px; font-size: 18px;">Family Phone Numbers</h3>
+
+            <div>
+                <label style="font-weight: 500;">Mom's Phone</label>
+                <input type="tel" id="momPhone" placeholder="555-0123" onchange="updateSetting('momPhone', this.value)">
+            </div>
+
+            <div>
+                <label style="font-weight: 500;">NeNe's Phone</label>
+                <input type="tel" id="nenePhone" placeholder="555-0123" onchange="updateSetting('nenePhone', this.value)">
+            </div>
+
+            <div>
+                <label style="font-weight: 500;">Grandma's Phone</label>
+                <input type="tel" id="grandmaPhone" placeholder="555-0123" onchange="updateSetting('grandmaPhone', this.value)">
+            </div>
+
+            <button onclick="testVoice()" style="width: 100%; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 8px; margin-top: 20px; cursor: pointer; font-size: 16px; font-weight: 500;">
+                🎙️ Test Voice
+            </button>
+
+            <!-- AI INTEGRATION SECTION -->
+            <h3 style="margin-top: 28px; margin-bottom: 4px; font-size: 18px;">🤖 AI Integration</h3>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">VONNIE tries each provider in order until one responds.</p>
+
+            <div class="row">
+                <span style="font-weight: 500;">AI Features</span>
+                <div class="toggle-switch" id="aiEnabledToggle" onclick="toggleSetting('aiEnabled')" role="switch" aria-label="AI features"></div>
+            </div>
+
+            <div id="aiProviderList" style="margin-top: 8px;">
+                <div class="ai-provider-row">
+                    <span><span class="provider-dot dot-on" id="dot_groq"></span>1. Groq <span style="font-size:11px;color:#6b7280;">(llama-3.1-8b-instant)</span></span>
+                    <div class="toggle-switch" id="toggle_groq" onclick="toggleProvider('groq')" style="width:38px;height:22px;"></div>
+                </div>
+                <div class="ai-provider-row">
+                    <span><span class="provider-dot dot-on" id="dot_gemini"></span>2. Gemini <span style="font-size:11px;color:#6b7280;">(gemini-1.5-flash)</span></span>
+                    <div class="toggle-switch" id="toggle_gemini" onclick="toggleProvider('gemini')" style="width:38px;height:22px;"></div>
+                </div>
+                <div class="ai-provider-row">
+                    <span><span class="provider-dot dot-on" id="dot_together"></span>3. Together.ai <span style="font-size:11px;color:#6b7280;">(llama-3.2-3b)</span></span>
+                    <div class="toggle-switch" id="toggle_together" onclick="toggleProvider('together')" style="width:38px;height:22px;"></div>
+                </div>
+                <div class="ai-provider-row">
+                    <span><span class="provider-dot dot-on" id="dot_mistral"></span>4. Mistral <span style="font-size:11px;color:#6b7280;">(mistral-small)</span></span>
+                    <div class="toggle-switch" id="toggle_mistral" onclick="toggleProvider('mistral')" style="width:38px;height:22px;"></div>
+                </div>
+                <div class="ai-provider-row">
+                    <span><span class="provider-dot dot-on" id="dot_deepseek"></span>5. DeepSeek <span style="font-size:11px;color:#6b7280;">(deepseek-chat)</span></span>
+                    <div class="toggle-switch" id="toggle_deepseek" onclick="toggleProvider('deepseek')" style="width:38px;height:22px;"></div>
+                </div>
+                <div class="ai-provider-row">
+                    <span><span class="provider-dot dot-off" id="dot_ollama"></span>6. Ollama <span style="font-size:11px;color:#6b7280;">(local desktop)</span></span>
+                    <div class="toggle-switch" id="toggle_ollama" onclick="toggleProvider('ollama')" style="width:38px;height:22px;"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 16px; padding: 10px; background: #fef9c3; border-radius: 8px; font-size: 12px; color: #92400e;">
+                ⚠️ API keys are pre-loaded. Do not share this app's source HTML publicly.
+            </div>
+
+            <div style="margin-top: 12px; padding: 12px; background: #f3f4f6; border-radius: 8px; font-size: 13px; color: #6b7280;">
+                V.O.N.N.I.E. works fully offline. All phrases are saved on your device.
+            </div>
+        </div>
+    </div>
+
+    <!-- SAY ANYTHING MODAL -->
+    <div id="sayAnythingModal" class="modal" onclick="hideSayAnything()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h2 style="font-size: 22px;">💬 Say Anything</h2>
+                <button onclick="hideSayAnything()" style="font-size: 28px; background: none; border: none; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+            <p style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">Type what Vonnie wants to say. AI will polish it into a natural phrase.</p>
+            <textarea id="sayAnythingInput" rows="3" placeholder="e.g. want to watch my show... or I'm uncomfortable and need help adjusting"></textarea>
+            <div id="sayAnythingResult"></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button onclick="hideSayAnything()" style="padding: 14px; background: #f3f4f6; border: 2px solid #d1d5db; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer;">Cancel</button>
+                <button id="sayAnythingBtn" onclick="submitSayAnything()" style="padding: 14px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer;">🔊 Speak It</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CALL CONFIRM MODAL -->
+    <div id="callModal" class="modal" onclick="cancelCall()">
+        <div class="modal-content" onclick="event.stopPropagation()" style="text-align: center;">
+            <div style="font-size: 64px; margin-bottom: 16px;" id="callIcon">👩🏿</div>
+            <h2 style="font-size: 28px; margin-bottom: 8px;" id="callName">Call Mom?</h2>
+            <p style="color: #6b7280; margin-bottom: 24px;" id="callNumber">Tap to call</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <button onclick="cancelCall()" style="padding: 16px; background: #fee2e2; border: 2px solid #ef4444; border-radius: 12px; color: #dc2626; font-weight: bold; cursor: pointer; font-size: 18px;">✗ Cancel</button>
+                <button id="callNowBtn" onclick="callNow()" style="padding: 16px; background: #dcfce7; border: 2px solid #22c55e; border-radius: 12px; color: #16a34a; font-weight: bold; cursor: pointer; font-size: 18px;">📞 Call</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ============================
+           SVG ICON LIBRARY
+        ============================ */
+        const ICONS = {
+            toilet: `<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="6" width="60" height="30" rx="5" fill="#eeeee8" stroke="#c8c5bc" stroke-width="2"/><rect x="17" y="3" width="66" height="9" rx="4" fill="#e2e0d8" stroke="#b8b5a8" stroke-width="1.5"/><rect x="66" y="8" width="14" height="7" rx="3.5" fill="#b0b0a0" stroke="#909088" stroke-width="1"/><rect x="32" y="34" width="36" height="10" rx="3" fill="#d8d5cc" stroke="#b5b2a8" stroke-width="1.5"/><path d="M12 44 Q10 76 50 92 Q90 76 88 44 Z" fill="#eeeee8" stroke="#c8c5bc" stroke-width="2"/><path d="M10 44 Q9 48 11 51 Q26 63 50 64 Q74 63 89 51 Q91 48 90 44" fill="none" stroke="#c8c5bc" stroke-width="2.5"/><ellipse cx="50" cy="74" rx="22" ry="12" fill="#b8dff0" stroke="#90c8e0" stroke-width="0.5"/><ellipse cx="50" cy="96" rx="26" ry="7" fill="#d8d5cc" stroke="#b5b2a8" stroke-width="1"/></svg>`,
+
+            glass: `<svg viewBox="0 0 70 100" xmlns="http://www.w3.org/2000/svg"><path d="M8 8 L16 92 L54 92 L62 8 Z" fill="rgba(200,235,255,0.35)" stroke="#6ab0d8" stroke-width="2.5"/><path d="M13 38 L18 90 L52 90 L57 38 Z" fill="rgba(255,185,80,0.65)"/><rect x="24" y="56" width="12" height="10" rx="2" fill="rgba(215,245,255,0.8)" stroke="#90d8f0" stroke-width="1"/><rect x="38" y="61" width="10" height="8" rx="2" fill="rgba(215,245,255,0.8)" stroke="#90d8f0" stroke-width="1"/><circle cx="30" cy="50" r="2" fill="rgba(255,220,150,0.7)"/><circle cx="42" cy="44" r="1.5" fill="rgba(255,220,150,0.7)"/><rect x="44" y="2" width="7" height="72" rx="3.5" fill="#ff5555" stroke="#dd3333" stroke-width="0.5"/><rect x="44" y="2" width="3" height="72" fill="#ff9090" opacity="0.4"/><ellipse cx="35" cy="8" rx="27" ry="5" fill="none" stroke="#6ab0d8" stroke-width="2"/><ellipse cx="35" cy="91" rx="19" ry="3.5" fill="rgba(120,190,230,0.4)" stroke="#6ab0d8" stroke-width="1.5"/><path d="M13 12 L15 86" stroke="rgba(255,255,255,0.5)" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+
+            plate: `<svg viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="38" fill="#f2f0e8" stroke="#d0c8c0" stroke-width="2"/><circle cx="50" cy="50" r="30" fill="#ece9e0" stroke="#c8c0b8" stroke-width="1"/><ellipse cx="46" cy="48" rx="15" ry="11" fill="#a0522d" stroke="#7a3820" stroke-width="1"/><ellipse cx="46" cy="48" rx="10" ry="7" fill="#8b4513"/><line x1="40" y1="44" x2="52" y2="50" stroke="#5a2d0c" stroke-width="1.5"/><line x1="38" y1="49" x2="50" y2="55" stroke="#5a2d0c" stroke-width="1.5"/><ellipse cx="65" cy="43" rx="8" ry="6" fill="#4a9a3a" stroke="#2a7a1a" stroke-width="0.8"/><ellipse cx="62" cy="58" rx="7" ry="5" fill="#60b050" stroke="#2a7a1a" stroke-width="0.8"/><ellipse cx="51" cy="62" rx="8" ry="5" fill="#f5e8a0" stroke="#d8c870" stroke-width="0.8"/><rect x="7" y="16" width="3.5" height="50" rx="1.5" fill="#c0beb5" stroke="#909088" stroke-width="0.8"/><rect x="6" y="16" width="2" height="16" rx="1" fill="#aaa"/><rect x="9.5" y="16" width="2" height="16" rx="1" fill="#aaa"/><rect x="13" y="16" width="2" height="16" rx="1" fill="#aaa"/><rect x="87" y="16" width="3.5" height="50" rx="1.5" fill="#c0beb5" stroke="#909088" stroke-width="0.8"/><path d="M87 16 Q90 22 91 32 L87 32 Z" fill="#d8d8d0"/></svg>`,
+
+            dress: `<svg viewBox="0 0 90 100" xmlns="http://www.w3.org/2000/svg"><!-- T-shirt --><path d="M22 8 L8 24 L20 30 L20 52 L70 52 L70 30 L82 24 L68 8 Q58 16 45 16 Q32 16 22 8 Z" fill="#5b9bd5" stroke="#3a7ab5" stroke-width="1.5"/><path d="M30 9 Q45 18 60 9" fill="none" stroke="#3a7ab5" stroke-width="2"/><path d="M22 38 L68 38" stroke="white" stroke-width="2" opacity="0.45"/><!-- Sneaker --><path d="M12 80 Q12 68 24 68 L56 68 Q68 68 70 74 L74 80 Q74 88 67 90 L15 90 Q11 87 12 80 Z" fill="white" stroke="#d0d0d0" stroke-width="1.5"/><path d="M11 86 L75 86 L73 92 L12 92 Z" fill="#3a3a3a" stroke="#222" stroke-width="1"/><rect x="38" y="66" width="12" height="9" rx="2" fill="#e8e8e8" stroke="#ccc" stroke-width="0.8"/><path d="M17 77 Q38 70 62 79" fill="none" stroke="#e03030" stroke-width="2.5" stroke-linecap="round"/><circle cx="42" cy="69" r="1.2" fill="#aaa"/><circle cx="46" cy="68.5" r="1.2" fill="#aaa"/><circle cx="50" cy="69" r="1.2" fill="#aaa"/></svg>`,
+
+            tree: `<svg viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg"><rect x="35" y="68" width="10" height="30" rx="3" fill="#7d5a3c" stroke="#6b4a30" stroke-width="1"/><ellipse cx="40" cy="64" rx="28" ry="20" fill="#5a9a38" stroke="#3d7a1f" stroke-width="1.5"/><ellipse cx="40" cy="48" rx="24" ry="18" fill="#66b040" stroke="#3d7a1f" stroke-width="1.5"/><ellipse cx="40" cy="33" rx="19" ry="15" fill="#72c048" stroke="#3d7a1f" stroke-width="1.5"/><ellipse cx="40" cy="20" rx="14" ry="12" fill="#7ece50" stroke="#3d7a1f" stroke-width="1.5"/><ellipse cx="33" cy="28" rx="6" ry="8" fill="#98e068" opacity="0.4"/></svg>`,
+
+            tv: `<svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg"><path fill="#324D5B" d="M26.253,70.007h227.522c14.5,0,26.253,11.761,26.253,26.253v157.515c0,14.491-11.752,26.253-26.253,26.253H26.253C11.761,280.027,0,268.266,0,253.775V96.259C0,81.759,11.761,70.007,26.253,70.007z"/><path fill="#1E2E37" d="M245.024,104.01h-17.502c-4.83,0-8.751,3.912-8.751,8.751s3.92,8.751,8.751,8.751h17.502c4.839,0,8.751-3.912,8.751-8.751S249.863,104.01,245.024,104.01z M245.024,131.263h-17.502c-4.83,0-8.751,3.912-8.751,8.751s3.92,8.751,8.751,8.751h17.502c4.839,0,8.751-3.912,8.751-8.751S249.863,131.263,245.024,131.263z M245.024,157.515h-17.502c-4.83,0-8.751,3.912-8.751,8.751s3.92,8.751,8.751,8.751h17.502c4.839,0,8.751-3.912,8.751-8.751S249.863,157.515,245.024,157.515z"/><circle fill="#F4B459" cx="236.273" cy="236.273" r="17.502"/><path fill="#EBEBEB" d="M43.754,96.259h131.263c9.661,0,17.502,7.841,17.502,17.502v122.512c0,9.661-7.841,17.502-17.502,17.502H43.754c-9.661,0-17.502-7.841-17.502-17.502V113.761C26.253,104.091,34.093,96.259,43.754,96.259z"/><path fill="#344E5C" d="M157.515,0c-4.839,0-8.751,3.912-8.751,8.751c0,0.639,0.228,1.199,0.359,1.794l-39.738,39.729L69.648,10.536c0.131-0.595,0.359-1.155,0.359-1.785C70.007,3.912,66.095,0,61.256,0s-8.751,3.912-8.751,8.751s3.912,8.751,8.751,8.751c0.63,0,1.19-0.228,1.785-0.359l44.209,44.209l2.135-2.144l2.135,2.135l44.209-44.209c0.595,0.131,1.155,0.368,1.785,0.368c4.839,0,8.751-3.912,8.751-8.751S162.355,0,157.515,0z"/><path fill="#2B414D" d="M131.263,52.505H87.509c-9.661,0-17.502,7.841-17.502,17.502c0,0.219,78.775-0.28,78.758,0.07C148.765,60.407,140.924,52.505,131.263,52.505z"/><path fill="#26A6D1" d="M137.126,170.703l-42.459-29.77c-3.632-2.371-7.211-0.464-7.211,4.262v59.69c0,4.717,3.579,6.651,7.211,4.262l42.38-29.35C141.668,176.977,139.979,172.436,137.126,170.703z"/></svg>`,
+
+            remote: `<svg viewBox="0 0 60 100" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="4" width="40" height="92" rx="12" fill="#2a3040" stroke="#1a2030" stroke-width="1.5"/><circle cx="30" cy="22" r="8" fill="#cc2222" stroke="#aa0000" stroke-width="1.5"/><rect x="28.5" y="15" width="3" height="8" rx="1.5" fill="#ee4444"/><rect x="14" y="37" width="13" height="9" rx="3" fill="#3d5580" stroke="#2d4570" stroke-width="0.8"/><rect x="33" y="37" width="13" height="9" rx="3" fill="#3d5580" stroke="#2d4570" stroke-width="0.8"/><rect x="14" y="51" width="13" height="9" rx="3" fill="#3d5580" stroke="#2d4570" stroke-width="0.8"/><rect x="33" y="51" width="13" height="9" rx="3" fill="#3d5580" stroke="#2d4570" stroke-width="0.8"/><rect x="14" y="65" width="13" height="9" rx="3" fill="#3d5580" stroke="#2d4570" stroke-width="0.8"/><rect x="33" y="65" width="13" height="9" rx="3" fill="#3d5580" stroke="#2d4570" stroke-width="0.8"/><rect x="14" y="79" width="13" height="9" rx="3" fill="#2d4570" stroke="#1d3560" stroke-width="0.8"/><rect x="33" y="79" width="13" height="9" rx="3" fill="#2d4570" stroke="#1d3560" stroke-width="0.8"/><text x="20.5" y="44.5" text-anchor="middle" font-size="7" fill="#9ab5d0" font-family="Arial,sans-serif">1</text><text x="39.5" y="44.5" text-anchor="middle" font-size="7" fill="#9ab5d0" font-family="Arial,sans-serif">2</text><text x="20.5" y="58.5" text-anchor="middle" font-size="7" fill="#9ab5d0" font-family="Arial,sans-serif">3</text><text x="39.5" y="58.5" text-anchor="middle" font-size="7" fill="#9ab5d0" font-family="Arial,sans-serif">4</text><text x="20.5" y="72.5" text-anchor="middle" font-size="7" fill="#9ab5d0" font-family="Arial,sans-serif">5</text><text x="39.5" y="72.5" text-anchor="middle" font-size="7" fill="#9ab5d0" font-family="Arial,sans-serif">6</text><text x="20.5" y="86.5" text-anchor="middle" font-size="7" fill="#8090a0" font-family="Arial,sans-serif">−</text><text x="39.5" y="86.5" text-anchor="middle" font-size="7" fill="#8090a0" font-family="Arial,sans-serif">+</text></svg>`,
+
+            flame: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path fill="#F7AF62" d="M21.04,20.63c0,0-1.79,8.99-0.96,11.47c0,0,1.1-13.6,11.67-24.1c0,0-0.34,8.79,5.15,13.25s6.73,11.4,6.73,11.4s0.62-4.74-1.24-12.33c0,0,11.67,12.12,6.32,25.65c0,0-6.45,14.9-24.92,8.38S17.74,22.97,21.04,20.63z"/><path fill="#FBD872" d="M40.75,32.12c0.17,3.81-1.55,4.81-2.94,5.01c-0.89,0.13-1.79-0.1-2.57-0.53c-7.65-4.15-3.72-14.29-3.72-14.29c-5.01,4.79-2.4,14.74-2.4,14.74s1.55,5.64-1.62,6.13c-1.59,0.25-2.33-0.39-2.67-1.08c-0.31-0.64-0.31-1.39-0.04-2.05c2.15-5.34,0.31-8.36,0.31-8.36c-1.03,3.06-2.12,5.08-2.91,6.29c-1.12,1.72-1.83,3.68-1.93,5.73C19.9,51.35,26.3,54.4,26.3,54.4c10.51,5.36,15.23-4.44,15.23-4.44C46.96,39.52,40.75,32.12,40.75,32.12z"/></svg>`,
+
+            snowflake: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect x="29.5" y="4" width="5" height="56" rx="2.5" fill="#4ab8e8"/><rect x="4" y="29.5" width="56" height="5" rx="2.5" fill="#4ab8e8"/><line x1="12.5" y1="12.5" x2="51.5" y2="51.5" stroke="#4ab8e8" stroke-width="5" stroke-linecap="round"/><line x1="51.5" y1="12.5" x2="12.5" y2="51.5" stroke="#4ab8e8" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="5" r="4" fill="#2090c8"/><circle cx="32" cy="59" r="4" fill="#2090c8"/><circle cx="5" cy="32" r="4" fill="#2090c8"/><circle cx="59" cy="32" r="4" fill="#2090c8"/><circle cx="13" cy="13" r="3.5" fill="#2090c8"/><circle cx="51" cy="13" r="3.5" fill="#2090c8"/><circle cx="13" cy="51" r="3.5" fill="#2090c8"/><circle cx="51" cy="51" r="3.5" fill="#2090c8"/><circle cx="32" cy="32" r="7" fill="#90d8f5"/></svg>`,
+
+            phone: `<svg viewBox="0 0 60 100" xmlns="http://www.w3.org/2000/svg"><!-- Phone body --><rect x="6" y="2" width="48" height="96" rx="9" fill="#1c1c28" stroke="#0a0a18" stroke-width="1.5"/><!-- Side buttons --><rect x="2" y="28" width="4" height="10" rx="2" fill="#2a2a38"/><rect x="2" y="42" width="4" height="14" rx="2" fill="#2a2a38"/><rect x="54" y="32" width="4" height="14" rx="2" fill="#2a2a38"/><!-- Screen --><rect x="10" y="14" width="40" height="68" rx="4" fill="#1a6fd4"/><!-- Screen shine/gradient overlay --><rect x="10" y="14" width="20" height="68" rx="4" fill="rgba(255,255,255,0.04)"/><!-- Phone call icon on screen --><circle cx="30" cy="48" r="16" fill="rgba(255,255,255,0.12)"/><path d="M23 40 Q21 42 21 47 Q21 54 26 59 Q31 64 38 64 Q43 64 45 61 L42 57 Q40 55 37 57 Q35 58 33 56 Q28 51 28 46 Q28 44 30 42 L26 38 Z" fill="white"/><path d="M35 35 L39 35 L39 40 L42 37 L46 41 L42 44 L39 41 L39 44 L35 44 Z" fill="white" opacity="0.85"/><!-- Earpiece --><rect x="20" y="7" width="20" height="4" rx="2" fill="#2a2a38"/><!-- Front camera --><circle cx="36" cy="7" r="2" fill="#2a2a38"/><circle cx="36" cy="7" r="1" fill="#111"/><!-- Signal bars top-left of screen --><rect x="13" y="17" width="2" height="3" rx="0.5" fill="rgba(255,255,255,0.5)"/><rect x="16" y="16" width="2" height="4" rx="0.5" fill="rgba(255,255,255,0.5)"/><rect x="19" y="15" width="2" height="5" rx="0.5" fill="rgba(255,255,255,0.5)"/><!-- Battery top-right of screen --><rect x="41" y="16" width="6" height="4" rx="1" fill="rgba(255,255,255,0.3)"/><rect x="47" y="17.5" width="1.5" height="1" rx="0.5" fill="rgba(255,255,255,0.3)"/><!-- Home bar at bottom --><rect x="22" y="87" width="16" height="3" rx="1.5" fill="#2a2a38"/></svg>`,
+
+            pill: `<svg viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="10" width="96" height="30" rx="15" fill="#f0f0f0" stroke="#c8c8c8" stroke-width="2"/><path d="M2 25 Q2 10 17 10 L50 10 L50 40 L17 40 Q2 40 2 25 Z" fill="#5b8dd9" stroke="#3a6cbf" stroke-width="1.5"/><path d="M50 10 L83 10 Q98 10 98 25 Q98 40 83 40 L50 40 Z" fill="#e8e8e0" stroke="#c8c8c8" stroke-width="1.5"/><line x1="50" y1="10" x2="50" y2="40" stroke="#c0c0b8" stroke-width="1.5"/></svg>`,
+
+            music: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="36" fill="#7c3aed" stroke="#5b21b6" stroke-width="2"/><rect x="44" y="18" width="4" height="30" rx="2" fill="white"/><rect x="44" y="18" width="18" height="5" rx="2" fill="white"/><rect x="58" y="18" width="4" height="20" rx="2" fill="white"/><ellipse cx="40" cy="50" rx="8" ry="5.5" fill="white"/><ellipse cx="55" cy="40" rx="7" ry="5" fill="white"/></svg>`,
+
+            lock: `<svg viewBox="0 0 60 78" xmlns="http://www.w3.org/2000/svg"><rect x="7" y="34" width="46" height="38" rx="7" fill="#475569" stroke="#334155" stroke-width="1.5"/><path d="M15 34 L15 22 Q15 6 30 6 Q45 6 45 22 L45 34" fill="none" stroke="#475569" stroke-width="7" stroke-linecap="round"/><circle cx="30" cy="52" r="7" fill="#94a3b8" stroke="#64748b" stroke-width="1"/><rect x="28" y="52" width="4" height="8" rx="2" fill="#64748b"/></svg>`,
+
+            heart: `<svg viewBox="0 0 80 75" xmlns="http://www.w3.org/2000/svg"><path d="M40 70 Q6 50 6 26 Q6 10 20 10 Q30 10 40 24 Q50 10 60 10 Q74 10 74 26 Q74 50 40 70 Z" fill="#e03030" stroke="#c02020" stroke-width="2"/><path d="M20 20 Q16 27 18 36" fill="none" stroke="#f87070" stroke-width="3" stroke-linecap="round"/></svg>`,
+
+            smile: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="36" fill="#fbbf24" stroke="#d97706" stroke-width="2"/><circle cx="27" cy="32" r="5" fill="#1e293b"/><circle cx="53" cy="32" r="5" fill="#1e293b"/><path d="M24 50 Q32 60 40 62 Q48 60 56 50" fill="none" stroke="#1e293b" stroke-width="3.5" stroke-linecap="round"/></svg>`,
+
+            sos: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="36" fill="#dc2626" stroke="#b91c1c" stroke-width="2"/><text x="40" y="53" text-anchor="middle" font-size="28" font-weight="900" font-family="Arial,sans-serif" fill="white">SOS</text></svg>`,
+
+            reposition: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="36" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/><path d="M40 14 L48 24 L43 24 L43 37 L56 37 L56 32 L66 40 L56 48 L56 43 L43 43 L43 56 L48 56 L40 66 L32 56 L37 56 L37 43 L24 43 L24 48 L14 40 L24 32 L24 37 L37 37 L37 24 L32 24 Z" fill="#2563eb" stroke="#1d4ed8" stroke-width="1"/>  </svg>`,
+
+            checkmark: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="36" fill="#16a34a" stroke="#15803d" stroke-width="2"/><path d="M20 42 L34 56 L62 24" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+
+            noSign: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="36" fill="#dc2626" stroke="#b91c1c" stroke-width="2"/><line x1="22" y1="40" x2="58" y2="40" stroke="white" stroke-width="8" stroke-linecap="round"/></svg>`,
+
+            pain: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="36" fill="#fecaca" stroke="#f87171" stroke-width="2"/><circle cx="28" cy="34" r="5" fill="#1e293b"/><circle cx="52" cy="34" r="5" fill="#1e293b"/><path d="M26 58 Q34 50 40 50 Q46 50 54 58" fill="none" stroke="#b91c1c" stroke-width="3.5" stroke-linecap="round"/><path d="M34 20 L38 28 L30 28 Z" fill="#dc2626"/><path x1="40" y1="20" x2="40" y2="28" d="M46 20 L50 28 L42 28 Z" fill="#dc2626"/></svg>`,
+
+            moon: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="36" fill="#1e3a5f" stroke="#1e2e5f" stroke-width="2"/><path d="M52 18 Q32 22 28 40 Q24 58 42 66 Q24 68 18 52 Q10 28 30 16 Q40 10 52 18 Z" fill="#c8d8f8"/><circle cx="58" cy="22" r="3" fill="#fef9c3"/><circle cx="62" cy="38" r="2" fill="#fef9c3"/><circle cx="48" cy="14" r="2" fill="#fef9c3"/></svg>`,
+
+            goodDay: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="36" fill="#fbbf24" stroke="#d97706" stroke-width="2"/><circle cx="40" cy="40" r="20" fill="#fde68a"/><circle cx="28" cy="34" r="4" fill="#92400e"/><circle cx="52" cy="34" r="4" fill="#92400e"/><path d="M26 50 Q33 60 40 62 Q47 60 54 50" fill="none" stroke="#92400e" stroke-width="3.5" stroke-linecap="round"/><line x1="40" y1="4" x2="40" y2="14" stroke="#d97706" stroke-width="3" stroke-linecap="round"/><line x1="40" y1="66" x2="40" y2="76" stroke="#d97706" stroke-width="3" stroke-linecap="round"/><line x1="4" y1="40" x2="14" y2="40" stroke="#d97706" stroke-width="3" stroke-linecap="round"/><line x1="66" y1="40" x2="76" y2="40" stroke="#d97706" stroke-width="3" stroke-linecap="round"/></svg>`
+        };
+
+        /* ============================
+           BUTTON DEFINITIONS
+        ============================ */
+        const primaryButtons = [
+            { id: 'restroom', icon: ICONS.toilet,    label: 'Restroom',       phrase: 'I need to use the restroom, please',        color: '#dbeafe', accent: '#2563eb' },
+            { id: 'hungry',   icon: ICONS.plate,     label: 'Hungry',         phrase: "I'm hungry. Can I have something to eat?",  color: '#fef3c7', accent: '#d97706' },
+            { id: 'thirsty',  icon: ICONS.glass,     label: 'Thirsty',        phrase: 'I need something to drink, please',          color: '#cffafe', accent: '#0891b2' },
+            { id: 'dressed',  icon: ICONS.dress,     label: 'Get Dressed',    phrase: "I'd like to get dressed — something comfortable, please", color: '#e0f2fe', accent: '#0369a1' },
+            { id: 'outside',  icon: ICONS.tree,      label: 'Go Outside',     phrase: "I'd like to go outside for a while",         color: '#dcfce7', accent: '#15803d' },
+            { id: 'tv',       icon: ICONS.tv,        label: 'Watch TV',       phrase: 'I would like to watch TV, please',           color: '#e0f2fe', accent: '#0284c7' },
+            { id: 'channel',  icon: ICONS.remote,    label: 'Change Channel', phrase: 'Can you change the channel, please?',        color: '#f0f9ff', accent: '#0369a1' },
+            { id: 'hot',      icon: ICONS.flame,     label: 'Too Hot',        phrase: "I'm hot. Can we cool down the room?",        color: '#fef2f2', accent: '#dc2626' },
+            { id: 'cold',     icon: ICONS.snowflake, label: 'Too Cold',       phrase: "I'm cold. Can we warm up the room?",         color: '#eff6ff', accent: '#2563eb' },
+            { id: 'mom',      icon: ICONS.phone,     label: 'Call Mom',       phrase: 'I want to call Mom',                         color: '#fce7f3', accent: '#be185d', isCall: true, callKey: 'momPhone',    callName: 'Mom' },
+            { id: 'nene',     icon: ICONS.phone,     label: 'Call NeNe',      phrase: 'I want to call my sister NeNe',              color: '#d1fae5', accent: '#065f46', isCall: true, callKey: 'nenePhone',   callName: 'NeNe' },
+            { id: 'grandma',  icon: ICONS.phone,     label: 'Call Grandma',   phrase: 'I want to call Grandma',                    color: '#fef9c3', accent: '#92400e', isCall: true, callKey: 'grandmaPhone', callName: 'Grandma' }
+        ];
+
+        const secondaryButtons = [
+            { id: 'yes',        icon: ICONS.checkmark,   label: 'Yes',             phrase: 'Yes, please',                                      color: '#dcfce7', accent: '#16a34a' },
+            { id: 'no',         icon: ICONS.noSign,      label: 'No',              phrase: 'No, thank you',                                    color: '#fee2e2', accent: '#dc2626' },
+            { id: 'pain',       icon: ICONS.pain,        label: 'I\'m in Pain',    phrase: "I'm in pain. Can you help me?",                    color: '#fecaca', accent: '#b91c1c' },
+            { id: 'medicine',   icon: ICONS.pill,        label: 'Medication',      phrase: "It's time for my medication, please",              color: '#dbeafe', accent: '#1d4ed8' },
+            { id: 'tired',      icon: ICONS.moon,        label: 'Need to Rest',    phrase: "I'm tired and need to rest for a while",           color: '#e0e7ff', accent: '#4338ca' },
+            { id: 'reposition', icon: ICONS.reposition,  label: 'Reposition Me',   phrase: 'Can you help adjust my position, please?',         color: '#eff6ff', accent: '#2563eb' },
+            { id: 'love',       icon: ICONS.heart,       label: 'I Love You',      phrase: 'I love you',                                       color: '#fce7f3', accent: '#be185d' },
+            { id: 'thanks',     icon: ICONS.smile,       label: 'Thank You',       phrase: 'Thank you so much. I really appreciate you',       color: '#fef9c3', accent: '#92400e' },
+            { id: 'help',       icon: ICONS.sos,         label: 'Need Help',       phrase: 'I need help, please',                              color: '#fee2e2', accent: '#dc2626' },
+            { id: 'music',      icon: ICONS.music,       label: 'Music',           phrase: 'I would like to listen to some music',             color: '#f3e8ff', accent: '#7c3aed' },
+            { id: 'privacy',    icon: ICONS.lock,        label: 'Privacy Please',  phrase: "I'd like some privacy, please",                    color: '#f1f5f9', accent: '#475569' },
+            { id: 'goodday',    icon: ICONS.goodDay,     label: 'Good Day!',       phrase: "I'm having a good day today!",                     color: '#fffbeb', accent: '#d97706' }
+        ];
+
+        /* ============================
+           SETTINGS
+        ============================ */
+        const defaults = {
+            voiceSpeed: 0.9,
+            voicePitch: 1,
+            voiceVolume: 1,
+            darkMode: false,
+            autoCall: false,
+            momPhone: '',
+            nenePhone: '',
+            grandmaPhone: '',
+            selectedVoice: null,
+            aiEnabled: true
+        };
+
+        let settings = { ...defaults, ...JSON.parse(localStorage.getItem('vonnie_settings') || '{}') };
+        let isSpeaking = false;
+        let lastPhrase = '';
+        let showingSecondary = false;
+        let voices = [];
+        let pendingCall = null;
+
+        /* ============================
+           INIT
+        ============================ */
+        function init() {
+            loadProviderSettings();
+            renderButtons(primaryButtons, 'buttons');
+            renderButtons(secondaryButtons, 'secondaryButtons');
+            loadVoices();
+            updateUIFromSettings();
+            updateConnectionStatus();
+            renderProviderToggles();
+
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+
+            // Pre-fetch greeting in background; speak it only when user taps welcome screen
+            let pendingGreeting = null;
+            getAIGreeting().then(g => { pendingGreeting = g; }).catch(() => {});
+
+            const welcomeEl = document.getElementById('welcome');
+            welcomeEl.style.cursor = 'pointer';
+            // Add "Tap to begin" hint
+            const tapHint = document.createElement('p');
+            tapHint.textContent = 'Tap to begin';
+            tapHint.style.cssText = 'margin-top:28px;font-size:15px;opacity:0.7;letter-spacing:2px;';
+            welcomeEl.querySelector('div').appendChild(tapHint);
+
+            welcomeEl.addEventListener('click', () => {
+                welcomeEl.classList.add('hidden');
+                // speak() called directly inside click handler = valid user gesture
+                speak(pendingGreeting || defaultGreeting());
+            }, { once: true });
+        }
+
+        /* ============================
+           RENDER BUTTONS
+        ============================ */
+        function renderButtons(list, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            list.forEach(btn => {
+                const el = document.createElement('div');
+                el.className = 'btn';
+                el.id = 'btn_' + btn.id;
+                el.style.background = btn.color || '#f8fafc';
+                if (btn.accent) el.style.borderTopColor = btn.accent;
+                el.setAttribute('role', 'button');
+                el.setAttribute('tabindex', '0');
+                el.setAttribute('aria-label', btn.label);
+                el.innerHTML = `<div class="icon">${btn.icon || ''}</div><div class="label">${btn.label}</div>`;
+
+                let touchFired = false;
+
+                // Touch: fire instantly on finger-down, block the 300ms ghost click
+                el.addEventListener('touchstart', (e) => {
+                    e.preventDefault();          // stops scroll-jitter & ghost click
+                    touchFired = true;
+                    el.classList.add('pressed');
+                    handleButton(btn);
+                }, { passive: false });
+
+                el.addEventListener('touchend',    () => el.classList.remove('pressed'));
+                el.addEventListener('touchcancel', () => el.classList.remove('pressed'));
+
+                // Mouse fallback (desktop / stylus / mouse-mode tablets)
+                el.addEventListener('click', () => {
+                    if (touchFired) { touchFired = false; return; } // skip ghost
+                    handleButton(btn);
+                });
+
+                // Keyboard accessibility
+                el.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleButton(btn);
+                    }
+                });
+
+                container.appendChild(el);
+            });
+        }
+
+        /* ============================
+           BUTTON HANDLER
+        ============================ */
+        function handleButton(btn) {
+            speak(btn.phrase);
+
+            // Clear old chips immediately
+            document.getElementById('aiChips').classList.add('hidden');
+
+            if (btn.isCall) {
+                const phone = settings[btn.callKey];
+                if (settings.autoCall || phone) {
+                    showCallModal(btn);
+                }
+            }
+
+            // Fetch AI follow-up suggestions in background (non-blocking)
+            if (settings.aiEnabled && navigator.onLine) {
+                fetchFollowUps(btn).then(suggestions => {
+                    if (suggestions) showAIChips(suggestions);
+                });
+            }
+        }
+
+        /* ============================
+           SPEECH SYNTHESIS
+        ============================ */
+        function speak(text) {
+            if (!window.speechSynthesis) return;
+            const ss = window.speechSynthesis;
+            ss.cancel();
+
+            // Must call ss.speak() synchronously within the user-gesture handler.
+            // Any setTimeout wrapper breaks iOS's trusted-gesture requirement and
+            // causes silent failures on iPad/iPhone.
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.rate   = settings.voiceSpeed  || 0.9;
+            utter.pitch  = settings.voicePitch  || 1;
+            utter.volume = settings.voiceVolume || 1;
+
+            if (settings.selectedVoice) {
+                const match = voices.find(v => v.name === settings.selectedVoice);
+                if (match) utter.voice = match;
+            }
+
+            lastPhrase = text;
+            isSpeaking = true;
+            setOrbSpeaking(true);
+
+            utter.onend = () => {
+                isSpeaking = false;
+                setOrbSpeaking(false);
+            };
+            utter.onerror = (e) => {
+                console.warn('[VONNIE] speech error:', e.error);
+                isSpeaking = false;
+                setOrbSpeaking(false);
+            };
+
+            ss.speak(utter);
+
+            // iOS bug: if the synthesizer is stuck in a paused state, resume it
+            if (ss.paused) ss.resume();
+        }
+
+        function setOrbSpeaking(active) {
+            const orb = document.getElementById('statusOrb');
+            if (active) {
+                orb.style.background = '#22c55e';
+                orb.style.animation = 'pulse 1.5s infinite';
+            } else {
+                orb.style.background = '#3b82f6';
+                orb.style.animation = '';
+            }
+        }
+
+        function stopSpeaking() {
+            window.speechSynthesis?.cancel();
+            isSpeaking = false;
+            setOrbSpeaking(false);
+        }
+
+        function repeatLast() {
+            if (lastPhrase) speak(lastPhrase);
+        }
+
+        /* ============================
+           VOICES
+        ============================ */
+        function loadVoices() {
+            voices = window.speechSynthesis?.getVoices() || [];
+            const select = document.getElementById('voiceSelect');
+            select.innerHTML = '<option value="">Default System Voice</option>';
+            voices.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.name;
+                opt.textContent = v.name + ' (' + v.lang + ')';
+                if (v.name === settings.selectedVoice) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        if (window.speechSynthesis) {
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
+        function testVoice() {
+            speak('Hello! I am VONNIE. I am always here for you.');
+        }
+
+        /* ============================
+           MORE / SECONDARY TOGGLE
+        ============================ */
+        function toggleMore() {
+            showingSecondary = !showingSecondary;
+            const grid = document.getElementById('secondaryButtons');
+            const btn  = document.getElementById('moreBtn');
+            grid.classList.toggle('visible', showingSecondary);
+            btn.textContent = showingSecondary ? '➖ Less Options' : '➕ More Options';
+        }
+
+        /* ============================
+           CONNECTION STATUS
+        ============================ */
+        function updateConnectionStatus() {
+            const el = document.getElementById('connectionStatus');
+            if (navigator.onLine) {
+                el.textContent = '🟢 Online';
+                el.style.color = '#22c55e';
+            } else {
+                el.textContent = '🔴 Offline — Using built-in phrases';
+                el.style.color = '#ef4444';
+            }
+        }
+
+        /* ============================
+           SETTINGS HELPERS
+        ============================ */
+        function saveSettings() {
+            localStorage.setItem('vonnie_settings', JSON.stringify(settings));
+        }
+
+        function updateSetting(key, value) {
+            settings[key] = value;
+            saveSettings();
+            updateUIFromSettings();
+            if (key === 'voiceSpeed') {
+                document.getElementById('speedValue').textContent = Number(value).toFixed(1);
+            }
+        }
+
+        function toggleSetting(key) {
+            settings[key] = !settings[key];
+            saveSettings();
+            updateUIFromSettings();
+        }
+
+        function liveSpeed(value) {
+            document.getElementById('speedValue').textContent = Number(value).toFixed(1);
+        }
+
+        function updateUIFromSettings() {
+            // Dark mode — apply to <html> so .dark selector works on all children
+            document.documentElement.classList.toggle('dark', settings.darkMode);
+            document.body.classList.toggle('dark', settings.darkMode);
+
+            // Toggles
+            document.getElementById('darkModeToggle').classList.toggle('active', settings.darkMode);
+            document.getElementById('autoCallToggle').classList.toggle('active', settings.autoCall);
+            document.getElementById('aiEnabledToggle').classList.toggle('active', settings.aiEnabled);
+
+            // Speed slider
+            const speedSlider = document.getElementById('voiceSpeed');
+            speedSlider.value = settings.voiceSpeed;
+            document.getElementById('speedValue').textContent = Number(settings.voiceSpeed).toFixed(1);
+
+            // Phone inputs
+            if (settings.momPhone)     document.getElementById('momPhone').value     = settings.momPhone;
+            if (settings.nenePhone)    document.getElementById('nenePhone').value    = settings.nenePhone;
+            if (settings.grandmaPhone) document.getElementById('grandmaPhone').value = settings.grandmaPhone;
+        }
+
+        /* ============================
+           SETTINGS MODAL
+        ============================ */
+        function showSettings() {
+            loadVoices(); // Refresh voice list in case it changed
+            document.getElementById('settingsModal').classList.add('show');
+        }
+
+        function hideSettings() {
+            document.getElementById('settingsModal').classList.remove('show');
+        }
+
+        /* ============================
+           CALL MODAL
+        ============================ */
+        function showCallModal(btn) {
+            const phone = settings[btn.callKey];
+            document.getElementById('callIcon').textContent   = btn.icon;
+            document.getElementById('callName').textContent   = 'Call ' + btn.callName + '?';
+            document.getElementById('callNumber').textContent = phone || 'No number saved — add one in Settings';
+            pendingCall = phone || null;
+            document.getElementById('callModal').classList.add('show');
+        }
+
+        function cancelCall() {
+            pendingCall = null;
+            document.getElementById('callModal').classList.remove('show');
+        }
+
+        function callNow() {
+            if (pendingCall) {
+                window.location.href = 'tel:' + pendingCall.replace(/\D/g, '');
+            }
+            cancelCall();
+        }
+
+        /* ============================
+           AI CONFIGURATION
+        ============================ */
+
+        const VONNIE_SYSTEM = `You are VONNIE (Voice Output Neural Navigator Interface Environment), an AI companion speaking on behalf of Vonnie, a 35-year-old woman who sustained a Traumatic Brain Injury (TBI) and quadriplegia in an auto accident at age 26. She has the full life experience, memories, preferences, and personality of an adult woman. She cannot speak verbally but has adult thoughts, feelings, and desires. Speak in first person as Vonnie would naturally speak — as a real adult woman, never childish or condescending. Be warm, dignified, and human. Keep all responses to 1-2 sentences maximum. Never be clinical or robotic.`;
+
+        // API keys — enter your own keys in Settings
+        const AI_PROVIDERS = {
+            groq:     { enabled: true,  name: 'Groq',       model: 'llama-3.1-8b-instant',                       key: '', url: 'https://api.groq.com/openai/v1/chat/completions' },
+            gemini:   { enabled: true,  name: 'Gemini',     model: 'gemini-1.5-flash',                           key: '', url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent' },
+            together: { enabled: true,  name: 'Together',   model: 'meta-llama/Llama-3.2-3B-Instruct-Turbo',    key: '', url: 'https://api.together.xyz/v1/chat/completions' },
+            mistral:  { enabled: true,  name: 'Mistral',    model: 'mistral-small-latest',                       key: '', url: 'https://api.mistral.ai/v1/chat/completions' },
+            deepseek: { enabled: true,  name: 'DeepSeek',   model: 'deepseek-chat',                              key: '', url: 'https://api.deepseek.com/chat/completions' },
+            ollama:   { enabled: false, name: 'Ollama',     model: 'llama3.2',                                   key: null, url: 'http://localhost:11434/api/generate' }
+        };
+
+        // Load any per-provider overrides from settings
+        function loadProviderSettings() {
+            const saved = JSON.parse(localStorage.getItem('vonnie_ai_providers') || '{}');
+            Object.keys(saved).forEach(k => {
+                if (AI_PROVIDERS[k]) AI_PROVIDERS[k].enabled = saved[k];
+            });
+        }
+
+        function saveProviderSettings() {
+            const out = {};
+            Object.keys(AI_PROVIDERS).forEach(k => { out[k] = AI_PROVIDERS[k].enabled; });
+            localStorage.setItem('vonnie_ai_providers', JSON.stringify(out));
+        }
+
+        function toggleProvider(key) {
+            AI_PROVIDERS[key].enabled = !AI_PROVIDERS[key].enabled;
+            saveProviderSettings();
+            renderProviderToggles();
+        }
+
+        function renderProviderToggles() {
+            Object.keys(AI_PROVIDERS).forEach(k => {
+                const p = AI_PROVIDERS[k];
+                const tog = document.getElementById('toggle_' + k);
+                const dot = document.getElementById('dot_' + k);
+                if (tog) tog.classList.toggle('active', p.enabled);
+                if (dot) { dot.className = 'provider-dot ' + (p.enabled ? 'dot-on' : 'dot-off'); }
+            });
+        }
+
+        /* ---- CASCADE AI CALL ---- */
+        async function callAI(userPrompt, systemPrompt) {
+            if (!settings.aiEnabled || !navigator.onLine) return null;
+            const sys = systemPrompt || VONNIE_SYSTEM;
+            const order = ['groq', 'gemini', 'together', 'mistral', 'deepseek', 'ollama'];
+            for (const key of order) {
+                const p = AI_PROVIDERS[key];
+                if (!p.enabled) continue;
+                try {
+                    let result = key === 'gemini'  ? await callGemini(userPrompt, sys, p)
+                               : key === 'ollama'  ? await callOllama(userPrompt, sys, p)
+                               : await callOpenAICompat(userPrompt, sys, p);
+                    if (result) {
+                        setAIStatus('🟢 ' + p.name);
+                        return result;
+                    }
+                } catch (e) {
+                    console.warn('[VONNIE AI] ' + p.name + ' failed:', e.message || e);
+                }
+            }
+            setAIStatus('⚫ Offline mode');
+            return null;
+        }
+
+        async function callOpenAICompat(prompt, system, p) {
+            const res = await fetch(p.url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + p.key },
+                body: JSON.stringify({ model: p.model, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }], max_tokens: 120, temperature: 0.7 }),
+                signal: AbortSignal.timeout(7000)
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const d = await res.json();
+            return d.choices?.[0]?.message?.content?.trim() || null;
+        }
+
+        async function callGemini(prompt, system, p) {
+            const res = await fetch(p.url + '?key=' + p.key, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: system + '\n\n' + prompt }] }], generationConfig: { maxOutputTokens: 120, temperature: 0.7 } }),
+                signal: AbortSignal.timeout(7000)
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const d = await res.json();
+            return d.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
+        }
+
+        async function callOllama(prompt, system, p) {
+            const res = await fetch(p.url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model: p.model, prompt: system + '\n\nUser: ' + prompt + '\nVONNIE:', stream: false }),
+                signal: AbortSignal.timeout(20000)
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const d = await res.json();
+            return d.response?.trim() || null;
+        }
+
+        /* ---- AI STATUS ---- */
+        function setAIStatus(text) {
+            const el = document.getElementById('aiStatus');
+            if (!el) return;
+            el.textContent = text;
+            const isGood = text.startsWith('🟢');
+            el.style.color = isGood ? '#22c55e' : '#9ca3af';
+        }
+
+        /* ---- AI GREETING ---- */
+        async function getAIGreeting() {
+            const hour = new Date().getHours();
+            const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            const day = days[new Date().getDay()];
+            const part = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+            const prompt = `Generate one warm, brief greeting for Vonnie. It's ${part} on ${day}. Be encouraging and personal. One sentence only. Don't start with "Good ${part}". Be creative and caring.`;
+            const result = await callAI(prompt, VONNIE_SYSTEM);
+            return result || defaultGreeting();
+        }
+
+        function defaultGreeting() {
+            const h = new Date().getHours();
+            if (h < 12) return "Good morning, Vonnie. I'm here with you today.";
+            if (h < 17) return "Good afternoon, Vonnie. I'm always here for you.";
+            return "Good evening, Vonnie. I'm right here whenever you need me.";
+        }
+
+        /* ---- FOLLOW-UP CHIPS ---- */
+        async function fetchFollowUps(btn) {
+            const prompt = `Vonnie just communicated: "${btn.phrase}" (pressed the "${btn.label}" button). Give exactly 3 very short follow-up options she might want to specify next. Reply ONLY with a valid JSON array of 3 strings, each 2-5 words. No extra text. Example: ["with ice please","room temperature","just water is fine"]`;
+            try {
+                const result = await callAI(prompt, 'You generate brief AAC follow-up communication options. Reply ONLY with a JSON array of 3 short strings. No other text.');
+                if (result) {
+                    const match = result.match(/\[[\s\S]*?\]/);
+                    if (match) return JSON.parse(match[0]);
+                }
+            } catch (e) { /* silent */ }
+            return null;
+        }
+
+        function showAIChips(suggestions) {
+            const c = document.getElementById('aiChips');
+            if (!suggestions || !suggestions.length) { c.classList.add('hidden'); return; }
+            c.innerHTML = '<div class="chips-label">💭 Also say:</div>' +
+                suggestions.map(s => `<button class="ai-chip" ontouchstart="chipTouch(event,this,'${s.replace(/'/g,"\\'")}')" onclick="chipClick(this,'${s.replace(/'/g,"\\'")}')">${s}</button>`).join('');
+            c.classList.remove('hidden');
+        }
+
+        let chipTouchFired = false;
+        function chipTouch(e, el, text) {
+            e.preventDefault();
+            chipTouchFired = true;
+            el.classList.add('chip-pressed');
+            speak(text);
+            setTimeout(() => el.classList.remove('chip-pressed'), 400);
+        }
+        function chipClick(el, text) {
+            if (chipTouchFired) { chipTouchFired = false; return; }
+            speak(text);
+        }
+
+        /* ---- SAY ANYTHING ---- */
+        function showSayAnything() {
+            document.getElementById('sayAnythingModal').classList.add('show');
+            setTimeout(() => document.getElementById('sayAnythingInput').focus(), 100);
+        }
+
+        function hideSayAnything() {
+            document.getElementById('sayAnythingModal').classList.remove('show');
+            document.getElementById('sayAnythingInput').value = '';
+            const res = document.getElementById('sayAnythingResult');
+            res.textContent = '';
+            res.classList.remove('show');
+            const btn = document.getElementById('sayAnythingBtn');
+            btn.disabled = false;
+            btn.textContent = '🔊 Speak It';
+        }
+
+        async function submitSayAnything() {
+            const input  = document.getElementById('sayAnythingInput');
+            const result = document.getElementById('sayAnythingResult');
+            const btn    = document.getElementById('sayAnythingBtn');
+            const raw    = input.value.trim();
+            if (!raw) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="ai-spinner"></span> Thinking…';
+            result.classList.remove('show');
+
+            let phrase = raw;
+            if (navigator.onLine && settings.aiEnabled) {
+                const enhanced = await callAI(
+                    `Convert this thought into a natural, polite 1-2 sentence spoken phrase for Vonnie: "${raw}". Reply with ONLY the finished phrase — no quotes, no explanation.`,
+                    VONNIE_SYSTEM
+                );
+                if (enhanced) phrase = enhanced;
+            }
+
+            result.textContent = '💬 ' + phrase;
+            result.classList.add('show');
+            speak(phrase);
+
+            btn.disabled = false;
+            btn.textContent = '🔊 Speak It';
+            setTimeout(hideSayAnything, 3000);
+        }
+
+        // Allow Enter key to submit Say Anything
+        document.addEventListener('keydown', e => {
+            const modal = document.getElementById('sayAnythingModal');
+            if (modal.classList.contains('show') && e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                submitSayAnything();
+            }
+        });
+
+        /* ============================
+           SERVICE WORKER REGISTRATION
+        ============================ */
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(() => {
+                // Fail silently — app still works without SW
+            });
+        }
+
+        /* ============================
+           START
+        ============================ */
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

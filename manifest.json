@@ -1,0 +1,28 @@
+{
+  "name": "V.O.N.N.I.E.",
+  "short_name": "VONNIE",
+  "description": "Voice Output Neural Navigator Interface Environment — Always here for you.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f3f4f6",
+  "theme_color": "#4a90d9",
+  "lang": "en-US",
+  "categories": ["accessibility", "medical"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='32' fill='%234a90d9'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-size='120' font-family='sans-serif'>◠‿◠</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%234a90d9'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-size='320' font-family='sans-serif'>◠‿◠</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}

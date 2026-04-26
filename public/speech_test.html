@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Speech Synthesis Test</title>
+  <style>
+    body { font-family: sans-serif; margin: 2em; }
+    button { font-size: 1.2em; padding: 0.5em 1em; }
+    #voices { margin-top: 1em; }
+  </style>
+</head>
+<body>
+  <h1>Speech Synthesis Test</h1>
+  <p>Click the button to test if your browser can speak:</p>
+  <button id="speakBtn">Speak Test Message</button>
+  <div id="voices"></div>
+  <script>
+    const speakBtn = document.getElementById('speakBtn');
+    const voicesDiv = document.getElementById('voices');
+    function speakTest() {
+      const msg = new SpeechSynthesisUtterance('This is a speech synthesis test. If you hear this, your browser supports speech.');
+      window.speechSynthesis.speak(msg);
+    }
+    speakBtn.addEventListener('click', speakTest);
+    // List available voices
+    function listVoices() {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length === 0) {
+        voicesDiv.textContent = 'No voices available.';
+        return;
+      }
+      voicesDiv.innerHTML = '<b>Available voices:</b><ul>' + voices.map(v => `<li>${v.name} (${v.lang})</li>`).join('') + '</ul>';
+    }
+    window.speechSynthesis.onvoiceschanged = listVoices;
+    listVoices();
+  </script>
+</body>
+</html>
