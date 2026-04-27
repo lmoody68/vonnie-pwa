@@ -228,6 +228,11 @@ button{cursor:pointer}
         <label>Confirm PIN</label>
         <input type="password" id="regPin2" placeholder="Re-enter PIN" maxlength="6">
       </div>
+      <div class="form-group">
+        <label>Registration Passcode</label>
+        <input type="password" id="regPasscode" placeholder="Enter registration passcode" autocomplete="off">
+        <div class="hint">Contact your V.O.N.N.I.E. administrator for the registration passcode.</div>
+      </div>
       <button class="btn-primary" onclick="doRegister()">Create Facility →</button>
     </div>
   </div>
@@ -523,15 +528,19 @@ async function doLogin() {
   }
 }
 
+const REGISTRATION_PASSCODE = 'Vonnie2026!*';
+
 async function doRegister() {
-  const name  = document.getElementById('regName').value.trim();
-  const type  = document.getElementById('regType').value;
-  const email = document.getElementById('regEmail').value.trim();
-  const pin   = document.getElementById('regPin').value.trim();
-  const pin2  = document.getElementById('regPin2').value.trim();
+  const name     = document.getElementById('regName').value.trim();
+  const type     = document.getElementById('regType').value;
+  const email    = document.getElementById('regEmail').value.trim();
+  const pin      = document.getElementById('regPin').value.trim();
+  const pin2     = document.getElementById('regPin2').value.trim();
+  const passcode = document.getElementById('regPasscode').value.trim();
   if (!name) { showError('Please enter a facility name.'); return; }
   if (!pin || pin.length < 4) { showError('PIN must be at least 4 digits.'); return; }
   if (pin !== pin2) { showError('PINs do not match.'); return; }
+  if (passcode !== REGISTRATION_PASSCODE) { showError('Incorrect registration passcode. Contact your V.O.N.N.I.E. administrator.'); return; }
   try {
     const code = generateCode(name);
     const rows = await sbPost('facilities', { name, facility_type: type, facility_code: code, admin_email: email, admin_pin: pin });
