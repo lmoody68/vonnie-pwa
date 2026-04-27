@@ -211,6 +211,12 @@
     <div class="grid secondary-grid" id="secondaryButtons"></div>
 
     <!-- CUSTOM BUTTONS -->
+    <!-- Facility buttons (pushed by admin) -->
+    <div id="facilitySection" style="display:none;">
+      <div class="custom-section-label" style="color:#5b3fa0;">🏥 <span id="facilitySectionLabel">Facility Buttons</span></div>
+      <div class="grid" id="facilityButtons"></div>
+    </div>
+
     <div id="customSection" style="display:none;">
       <div class="custom-section-label">✨ My Buttons</div>
       <div class="grid" id="customButtons"></div>
@@ -344,6 +350,58 @@
             </div>
 
             <button onclick="openBtnEditor()" style="width:100%;padding:14px;background:#f0fdf4;border:2px solid #22c55e;border-radius:10px;color:#15803d;font-size:15px;font-weight:700;cursor:pointer;margin-top:20px;">✏️ Edit My Buttons</button>
+
+            <!-- ── FACILITY MODE SECTION ── -->
+            <div style="margin-top:24px;border-top:1px solid #e5e7eb;padding-top:20px;">
+                <h3 style="font-size:16px;font-weight:700;color:#2d1a4e;margin-bottom:6px;">🏥 Facility Mode</h3>
+                <p style="font-size:12px;color:#6b7280;margin-bottom:14px;line-height:1.6;">Link this device to a facility so caregivers can push button sets remotely from the admin dashboard.</p>
+
+                <!-- Not joined state -->
+                <div id="facilityNotJoined">
+                    <button onclick="openJoinFacility()" style="width:100%;padding:13px;background:linear-gradient(135deg,#3b1f6e,#5b3fa0);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">🔗 Join a Facility</button>
+                </div>
+
+                <!-- Joined state -->
+                <div id="facilityJoined" style="display:none;">
+                    <div style="background:linear-gradient(135deg,#f5f0ff,#ede9fe);border:1px solid #ddd6fe;border-radius:12px;padding:14px 16px;margin-bottom:12px;">
+                        <div style="font-size:11px;font-weight:700;color:#7c3aed;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:4px;">Connected Facility</div>
+                        <div style="font-size:16px;font-weight:800;color:#2d1a4e;" id="joinedFacilityName">—</div>
+                        <div style="font-size:12px;color:#9ca3af;margin-top:2px;" id="joinedSyncTime">Never synced</div>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button onclick="syncFacilityNow()" style="flex:1;padding:10px;background:#f5f0ff;border:1px solid #ddd6fe;border-radius:8px;font-size:13px;font-weight:700;color:#7c3aed;cursor:pointer;">🔄 Sync Now</button>
+                        <button onclick="leaveFacility()" style="padding:10px 14px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;font-size:13px;font-weight:700;color:#dc2626;cursor:pointer;">Leave</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JOIN FACILITY MODAL -->
+    <div id="joinModal" class="modal" onclick="closeJoinModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h2 style="font-size:20px;color:#2d1a4e;">🏥 Join a Facility</h2>
+                <button onclick="closeJoinModal()" style="font-size:26px;background:none;border:none;cursor:pointer;color:#9ca3af;">×</button>
+            </div>
+            <p style="font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:20px;">
+                Enter the facility code your admin gave you — or scan the facility QR code which opens this automatically.
+            </p>
+            <div style="margin-bottom:14px;">
+                <label style="display:block;font-size:12px;font-weight:700;color:#4b5563;margin-bottom:6px;letter-spacing:0.05em;text-transform:uppercase;">Facility Code</label>
+                <input type="text" id="joinCodeInput" placeholder="e.g. MRC-4821" maxlength="12"
+                       style="width:100%;padding:14px;border:2px solid #ddd6fe;border-radius:10px;font-size:18px;font-weight:700;text-align:center;letter-spacing:0.08em;font-family:monospace;outline:none;color:#2d1a4e;"
+                       oninput="this.value=this.value.toUpperCase()">
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="display:block;font-size:12px;font-weight:700;color:#4b5563;margin-bottom:6px;letter-spacing:0.05em;text-transform:uppercase;">This Device's Label</label>
+                <input type="text" id="joinDeviceLabel" placeholder="e.g. Room 214 Tablet, Nurse Station 2"
+                       style="width:100%;padding:13px;border:2px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none;color:#2d1a4e;">
+            </div>
+            <div id="joinError" style="display:none;background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;"></div>
+            <button onclick="doJoinFacility()" style="width:100%;padding:14px;background:linear-gradient(135deg,#3b1f6e,#5b3fa0);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">
+                🔗 Join Facility
+            </button>
         </div>
     </div>
 
@@ -1283,9 +1341,180 @@
         }
 
         /* ============================
+           FACILITY MODE
+        ============================ */
+        const SB_URL  = 'YOUR_SUPABASE_URL';
+        const SB_KEY  = 'YOUR_SUPABASE_ANON_KEY';
+        const SB_HDR  = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
+
+        async function sbFetch(path, opts={}) {
+            try {
+                const r = await fetch(`${SB_URL}/rest/v1/${path}`, { headers: SB_HDR, ...opts });
+                if (!r.ok) return null;
+                return await r.json();
+            } catch { return null; }
+        }
+
+        function facilityState() {
+            return {
+                code:     localStorage.getItem('vonnie_facility_code'),
+                id:       localStorage.getItem('vonnie_facility_id'),
+                name:     localStorage.getItem('vonnie_facility_name'),
+                deviceId: localStorage.getItem('vonnie_device_id'),
+                lastSync: localStorage.getItem('vonnie_facility_last_sync'),
+            };
+        }
+
+        function renderFacilityUi() {
+            const s = facilityState();
+            const joined = !!s.code;
+            document.getElementById('facilityNotJoined').style.display = joined ? 'none' : '';
+            document.getElementById('facilityJoined').style.display    = joined ? ''     : 'none';
+            if (joined) {
+                document.getElementById('joinedFacilityName').textContent = s.name || s.code;
+                document.getElementById('joinedSyncTime').textContent = s.lastSync
+                    ? 'Last synced: ' + new Date(s.lastSync).toLocaleTimeString()
+                    : 'Syncing...';
+            }
+        }
+
+        function openJoinFacility()  { document.getElementById('joinModal').classList.add('show'); }
+        function closeJoinModal()    { document.getElementById('joinModal').classList.remove('show'); }
+
+        async function doJoinFacility() {
+            const code  = (document.getElementById('joinCodeInput').value || '').trim().toUpperCase();
+            const label = (document.getElementById('joinDeviceLabel').value || 'Tablet').trim();
+            const errEl = document.getElementById('joinError');
+            errEl.style.display = 'none';
+            if (!code) { errEl.textContent = 'Please enter your facility code.'; errEl.style.display=''; return; }
+            const rows = await sbFetch(`facilities?facility_code=eq.${code}`);
+            if (!rows || !rows.length) { errEl.textContent = 'Facility code not found. Check the code and try again.'; errEl.style.display=''; return; }
+            const fac = rows[0];
+            // Register this device
+            const devRows = await sbFetch('devices', {
+                method: 'POST',
+                body: JSON.stringify({ facility_id: fac.id, device_label: label })
+            });
+            const deviceId = devRows && devRows[0] ? devRows[0].id : null;
+            localStorage.setItem('vonnie_facility_code', code);
+            localStorage.setItem('vonnie_facility_id',   fac.id);
+            localStorage.setItem('vonnie_facility_name', fac.name);
+            if (deviceId) localStorage.setItem('vonnie_device_id', deviceId);
+            closeJoinModal();
+            renderFacilityUi();
+            await syncFacilityNow();
+            showScreenshotToast('✅ Joined ' + fac.name + '! Buttons synced.');
+        }
+
+        async function syncFacilityNow() {
+            const s = facilityState();
+            if (!s.id) return;
+            // Update last_seen
+            if (s.deviceId) {
+                await sbFetch(`devices?id=eq.${s.deviceId}`, {
+                    method: 'PATCH', body: JSON.stringify({ last_seen: new Date().toISOString() })
+                });
+            }
+            // Fetch active button set (or device-assigned set)
+            let activeSet = null;
+            if (s.deviceId) {
+                const devRows = await sbFetch(`devices?id=eq.${s.deviceId}&select=assigned_set_id`);
+                const assignedId = devRows && devRows[0] ? devRows[0].assigned_set_id : null;
+                if (assignedId) {
+                    const setRows = await sbFetch(`button_sets?id=eq.${assignedId}`);
+                    activeSet = setRows && setRows[0] ? setRows[0] : null;
+                }
+            }
+            if (!activeSet) {
+                const setRows = await sbFetch(`button_sets?facility_id=eq.${s.id}&is_active=eq.true`);
+                activeSet = setRows && setRows[0] ? setRows[0] : null;
+            }
+            if (activeSet) {
+                const btns = typeof activeSet.buttons === 'string' ? JSON.parse(activeSet.buttons) : activeSet.buttons;
+                localStorage.setItem('vonnie_facility_buttons', JSON.stringify(btns));
+                localStorage.setItem('vonnie_facility_set_name', activeSet.name);
+                renderFacilityButtons(btns, activeSet.name);
+            }
+            localStorage.setItem('vonnie_facility_last_sync', new Date().toISOString());
+            renderFacilityUi();
+        }
+
+        function renderFacilityButtons(btns, setName) {
+            if (!btns || !btns.length) { document.getElementById('facilitySection').style.display='none'; return; }
+            document.getElementById('facilitySection').style.display = '';
+            document.getElementById('facilitySectionLabel').textContent = setName || 'Facility Buttons';
+            // Render using the same renderButtons pattern but into facilityButtons container
+            const container = document.getElementById('facilityButtons');
+            container.innerHTML = '';
+            btns.forEach(btn => {
+                const b = { ...btn, id: btn.id || btn.label, icon: btn.emoji || btn.icon || '💬' };
+                const el = document.createElement('div');
+                el.className = 'btn';
+                const bg     = btn.color || '#ede9fe';
+                const accent = btn.accent || '#7c3aed';
+                el.style.background = `linear-gradient(155deg, ${bg} 0%, ${bg}cc 100%)`;
+                el.style.setProperty('--btn-accent', accent);
+                el.style.boxShadow = `0 4px 16px ${accent}28, 0 1px 3px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.85)`;
+                el.setAttribute('role','button');
+                el.setAttribute('tabindex','0');
+                el.setAttribute('aria-label', btn.label || btn.text);
+                el.innerHTML = `<div class="icon">${b.icon}</div><div class="label">${btn.label || btn.text || 'Button'}</div>`;
+                let touchFired = false;
+                el.addEventListener('touchstart', e => {
+                    e.preventDefault(); touchFired=true; el.classList.add('pressed');
+                    speak(btn.phrase || btn.text || btn.label);
+                }, {passive:false});
+                el.addEventListener('touchend',    () => el.classList.remove('pressed'));
+                el.addEventListener('touchcancel', () => el.classList.remove('pressed'));
+                el.addEventListener('click', () => {
+                    if (touchFired) { touchFired=false; return; }
+                    speak(btn.phrase || btn.text || btn.label);
+                });
+                container.appendChild(el);
+            });
+        }
+
+        async function leaveFacility() {
+            if (!confirm('Leave this facility? Your personal custom buttons will remain, but facility buttons will be removed.')) return;
+            const s = facilityState();
+            if (s.deviceId) await sbFetch(`devices?id=eq.${s.deviceId}`, { method: 'DELETE', headers: {...SB_HDR,'Prefer':'return=minimal'} });
+            ['vonnie_facility_code','vonnie_facility_id','vonnie_facility_name','vonnie_device_id','vonnie_facility_buttons','vonnie_facility_set_name','vonnie_facility_last_sync'].forEach(k => localStorage.removeItem(k));
+            document.getElementById('facilitySection').style.display = 'none';
+            renderFacilityUi();
+        }
+
+        async function initFacilityMode() {
+            // Check for ?join=CODE URL parameter (from QR code scan)
+            const params = new URLSearchParams(window.location.search);
+            const joinCode = params.get('join');
+            if (joinCode) {
+                // Clean URL without reloading
+                window.history.replaceState({}, '', window.location.pathname);
+                // Pre-fill and auto-open the join modal
+                setTimeout(() => {
+                    document.getElementById('joinCodeInput').value = joinCode.toUpperCase();
+                    openJoinFacility();
+                }, 1200); // wait for app to finish loading
+            }
+            // Load existing facility buttons from cache immediately (offline-friendly)
+            const cachedBtns = localStorage.getItem('vonnie_facility_buttons');
+            const cachedName = localStorage.getItem('vonnie_facility_set_name');
+            if (cachedBtns) {
+                try { renderFacilityButtons(JSON.parse(cachedBtns), cachedName); } catch(e) {}
+            }
+            renderFacilityUi();
+            // Background sync (don't block app load)
+            if (facilityState().code) {
+                setTimeout(syncFacilityNow, 2000);
+                // Re-sync every 5 minutes while app is open
+                setInterval(syncFacilityNow, 5 * 60 * 1000);
+            }
+        }
+
+        /* ============================
            START
         ============================ */
-        window.addEventListener('load', init);
+        window.addEventListener('load', () => { init(); initFacilityMode(); });
 
         /* ============================
            INSTALL BANNER
