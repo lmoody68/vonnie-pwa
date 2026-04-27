@@ -253,11 +253,11 @@
 
             <div id="aiProviderList" style="margin-top: 8px;">
                 <div class="ai-provider-row">
-                    <span><span class="provider-dot dot-on" id="dot_groq"></span>1. Groq <span style="font-size:11px;color:#6b7280;">(llama-3.1-8b-instant)</span></span>
+                    <span><span class="provider-dot dot-on" id="dot_groq"></span>1. Groq <span style="font-size:11px;color:#6b7280;">(llama-3.3-70b-versatile)</span></span>
                     <div class="toggle-switch" id="toggle_groq" onclick="toggleProvider('groq')" style="width:38px;height:22px;"></div>
                 </div>
                 <div class="ai-provider-row">
-                    <span><span class="provider-dot dot-on" id="dot_gemini"></span>2. Gemini <span style="font-size:11px;color:#6b7280;">(gemini-1.5-flash)</span></span>
+                    <span><span class="provider-dot dot-on" id="dot_gemini"></span>2. Gemini <span style="font-size:11px;color:#6b7280;">(gemini-2.0-flash)</span></span>
                     <div class="toggle-switch" id="toggle_gemini" onclick="toggleProvider('gemini')" style="width:38px;height:22px;"></div>
                 </div>
                 <div class="ai-provider-row">
@@ -782,9 +782,9 @@
 
         // API keys — enter your own keys in Settings
         const AI_PROVIDERS = {
-            groq:     { enabled: true,  name: 'Groq',       model: 'llama-3.1-8b-instant',                       key: '', url: 'https://api.groq.com/openai/v1/chat/completions' },
-            gemini:   { enabled: true,  name: 'Gemini',     model: 'gemini-1.5-flash',                           key: '', url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent' },
-            together: { enabled: true,  name: 'Together',   model: 'meta-llama/Llama-3.2-3B-Instruct-Turbo',    key: '', url: 'https://api.together.xyz/v1/chat/completions' },
+            groq:     { enabled: true,  name: 'Groq',       model: 'meta-llama/llama-4-scout-17b-16e-instruct',                       key: '', url: 'https://api.groq.com/openai/v1/chat/completions' },
+            gemini:   { enabled: true,  name: 'Gemini',     model: 'gemini-2.0-flash',                           key: '', url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent' },
+            together: { enabled: true,  name: 'Together',   model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo',    key: '', url: 'https://api.together.xyz/v1/chat/completions' },
             mistral:  { enabled: true,  name: 'Mistral',    model: 'mistral-small-latest',                       key: '', url: 'https://api.mistral.ai/v1/chat/completions' },
             deepseek: { enabled: true,  name: 'DeepSeek',   model: 'deepseek-chat',                              key: '', url: 'https://api.deepseek.com/chat/completions' },
             ollama:   { enabled: false, name: 'Ollama',     model: 'llama3.2',                                   key: null, url: 'http://localhost:11434/api/generate' }
