@@ -17,6 +17,7 @@ const ENTRIES = [
     'speech_test.html',
     'flier.html',
     'admin.html',
+    'guide.html',
 ];
 
 // ---- minimal zip builder (no npm deps) ----

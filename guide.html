@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V.O.N.N.I.E. — User Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:#f5f0ff; color:#1e1340; line-height:1.6; }
+
+/* ── Header ── */
+.guide-header {
+  background: linear-gradient(135deg,#2d1a4e,#5b3fa0);
+  padding: 28px 24px 24px;
+  text-align: center;
+  position: sticky; top:0; z-index:100;
+  box-shadow: 0 4px 16px rgba(45,26,78,0.3);
+}
+.guide-header h1 { font-family:'Lora',serif; font-size:24px; color:white; font-weight:700; }
+.guide-header p  { font-size:13px; color:#c4b5fd; margin-top:4px; font-style:italic; }
+.back-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25);
+  color:white; border-radius:8px; padding:7px 14px; font-size:13px; font-weight:600;
+  text-decoration:none; margin-bottom:12px;
+}
+
+/* ── Body ── */
+.guide-body { max-width:780px; margin:0 auto; padding:24px 16px 80px; }
+
+/* ── Section tabs ── */
+.section-tabs {
+  display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap;
+}
+.section-tab {
+  padding:10px 20px; border-radius:20px; border:2px solid #ddd6fe;
+  background:white; color:#7c3aed; font-size:13px; font-weight:700;
+  cursor:pointer; transition:all 0.15s; text-decoration:none;
+}
+.section-tab.active, .section-tab:hover {
+  background:#7c3aed; border-color:#7c3aed; color:white;
+}
+
+/* ── Cards ── */
+.guide-section { display:none; }
+.guide-section.active { display:block; }
+
+.guide-card {
+  background:white; border-radius:18px; padding:24px;
+  box-shadow:0 2px 12px rgba(91,63,160,0.07);
+  border:1px solid #ede9fe; margin-bottom:16px;
+}
+.guide-card h2 {
+  font-size:18px; font-weight:700; color:#2d1a4e;
+  display:flex; align-items:center; gap:10px; margin-bottom:16px;
+}
+.guide-card h2 .icon { font-size:22px; }
+
+/* ── Steps ── */
+.steps { list-style:none; display:flex; flex-direction:column; gap:14px; }
+.step {
+  display:flex; gap:14px; align-items:flex-start;
+}
+.step-num {
+  width:28px; height:28px; border-radius:50%;
+  background:linear-gradient(135deg,#5b3fa0,#7c6fcd);
+  color:white; font-size:13px; font-weight:800;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; margin-top:1px;
+}
+.step-body { flex:1; }
+.step-body strong { display:block; font-size:14px; color:#2d1a4e; margin-bottom:2px; }
+.step-body p { font-size:13px; color:#6b7280; line-height:1.6; }
+.step-body .tip {
+  display:inline-flex; gap:6px; align-items:flex-start;
+  background:#f5f0ff; border:1px solid #ddd6fe; border-radius:8px;
+  padding:8px 12px; font-size:12px; color:#5b3fa0; margin-top:8px; line-height:1.5;
+}
+
+/* ── Note / warning boxes ── */
+.note {
+  background:#fef3c7; border:1px solid #fde68a;
+  border-radius:10px; padding:12px 16px;
+  font-size:13px; color:#78350f; margin-top:12px;
+  display:flex; gap:8px; align-items:flex-start;
+}
+.success-note {
+  background:#f0fdf4; border:1px solid #86efac;
+  border-radius:10px; padding:12px 16px;
+  font-size:13px; color:#14532d; margin-top:12px;
+  display:flex; gap:8px; align-items:flex-start;
+}
+
+/* ── Quick ref table ── */
+.ref-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
+.ref-table th { background:#f5f0ff; color:#5b3fa0; font-weight:700; padding:10px 12px; text-align:left; }
+.ref-table td { padding:10px 12px; border-bottom:1px solid #f0e8ff; color:#374151; }
+.ref-table tr:last-child td { border-bottom:none; }
+.ref-table td:first-child { font-weight:600; color:#2d1a4e; width:44px; font-size:18px; }
+
+/* ── TOC ── */
+.toc { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.toc a {
+  display:flex; align-items:center; gap:10px; padding:10px 14px;
+  background:#f5f0ff; border:1px solid #ede9fe; border-radius:10px;
+  color:#5b3fa0; text-decoration:none; font-size:13px; font-weight:600;
+  transition:background 0.15s;
+}
+.toc a:hover { background:#ede9fe; }
+.toc a .arrow { margin-left:auto; opacity:0.5; }
+
+@media print { .guide-header { position:static; } }
+</style>
+</head>
+<body>
+
+<div class="guide-header">
+  <a class="back-btn" href="index.html">← Back to V.O.N.N.I.E.</a>
+  <h1>💜 V.O.N.N.I.E. User Guide</h1>
+  <p>"Always here for you"</p>
+</div>
+
+<div class="guide-body">
+
+  <!-- Section tabs -->
+  <div class="section-tabs">
+    <a class="section-tab active" onclick="showSection('caregivers',this)">👩‍⚕️ Caregivers & Families</a>
+    <a class="section-tab" onclick="showSection('admin',this)">🏥 Facility Admins</a>
+    <a class="section-tab" onclick="showSection('reference',this)">📋 Quick Reference</a>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       CAREGIVERS & FAMILIES
+  ══════════════════════════════════════════ -->
+  <div class="guide-section active" id="section-caregivers">
+
+    <div class="guide-card">
+      <h2><span class="icon">🚀</span> Getting Started</h2>
+      <ol class="steps">
+        <li class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Open the app</strong>
+            <p>Visit <strong>vonnie-aac-b2jrq.netlify.app</strong> on any phone, tablet, or computer. No download or account needed.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Tap the welcome screen</strong>
+            <p>Vonnie will greet you with a warm spoken message. Tap anywhere on the opening screen to enter the app.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Install it as an app (recommended)</strong>
+            <p>For instant one-tap access — especially important offline.</p>
+            <div class="tip">📱 <span><strong>iPhone/iPad:</strong> Tap the Share button (⎙) → Add to Home Screen → Add</span></div>
+            <div class="tip">🤖 <span><strong>Android:</strong> Tap the Install banner at the bottom of the screen → Install Now</span></div>
+            <div class="tip">💻 <span><strong>Desktop:</strong> Click the install icon in your browser's address bar</span></div>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="guide-card">
+      <h2><span class="icon">🔊</span> Using the Communication Buttons</h2>
+      <ol class="steps">
+        <li class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Tap any button to speak</strong>
+            <p>The patient taps a colored button — Vonnie immediately speaks the phrase aloud. No typing required.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Use REPEAT if needed</strong>
+            <p>Tap the purple <strong>🔁 REPEAT</strong> button at the bottom to replay the last phrase.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Stop speech anytime</strong>
+            <p>Tap the red <strong>⏹ STOP</strong> button to immediately silence Vonnie.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Say Anything (AI mode)</strong>
+            <p>Tap <strong>💬 Say Anything</strong> to type any custom phrase. Vonnie's AI will shape it into natural speech and speak it aloud — useful for thoughts that aren't covered by the preset buttons.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>See more buttons</strong>
+            <p>Tap <strong>➕ More Options</strong> to reveal a second grid of additional communication buttons.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="guide-card">
+      <h2><span class="icon">🤝</span> Using Caregiver Mode</h2>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:16px;">Caregiver Mode lets you ask structured YES/NO questions — perfect for patients with limited motor control who may find it easier to respond than to initiate.</p>
+      <ol class="steps">
+        <li class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Switch to Caregiver Mode</strong>
+            <p>Tap the <strong>🤝 Caregiver</strong> button in the top-right of the header. The screen transforms into a question board.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Choose a category</strong>
+            <p>Select from: 🍽️ Basic Needs, 😌 Comfort, 💊 Pain & Medical, 💙 Feelings, or 🎵 Activities.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Tap a question</strong>
+            <p>Vonnie speaks the question aloud (e.g. <em>"Are you in pain right now?"</em>) and a large YES/NO screen appears.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Patient taps YES or NO</strong>
+            <p>Vonnie speaks the answer. The overlay closes automatically after 2 seconds — ready for the next question.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>Return to Patient Mode</strong>
+            <p>Tap <strong>💙 Patient Mode</strong> in the header to restore the normal button grid.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="guide-card">
+      <h2><span class="icon">✏️</span> Adding & Editing Custom Buttons</h2>
+      <ol class="steps">
+        <li class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Open Settings</strong>
+            <p>Tap the <strong>⚙️</strong> gear icon in the top-right of the header.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Scroll down and tap ✏️ Edit My Buttons</strong>
+            <p>This opens the button editor showing all your custom buttons.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Add a new button</strong>
+            <p>Tap <strong>➕ Add New Button</strong>. Then:</p>
+            <div class="tip">😊 <span>Pick an emoji from the grid (or type one in the box)</span></div>
+            <div class="tip">📝 <span>Enter a short Button Label (e.g. "My Show")</span></div>
+            <div class="tip">🔊 <span>Enter the full Phrase to Speak (e.g. "I want to watch my show please")</span></div>
+            <div class="tip">🎨 <span>Pick a color that helps the patient recognize this button</span></div>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Tap ✅ Save</strong>
+            <p>The button appears instantly in the ✨ My Buttons section of the app.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>Edit or delete existing buttons</strong>
+            <p>In the editor list, tap <strong>✏️</strong> to edit a button or <strong>🗑️</strong> to remove it.</p>
+          </div>
+        </li>
+      </ol>
+      <div class="note">📸 <span><strong>Important:</strong> After setting up buttons, take a screenshot of the editor list as a backup. If the browser is cleared, you'll know exactly what to recreate.</span></div>
+    </div>
+
+    <div class="guide-card">
+      <h2><span class="icon">📞</span> Setting Up Family Phone Numbers</h2>
+      <ol class="steps">
+        <li class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Open Settings → Family Phone Numbers</strong>
+            <p>Enter phone numbers for Mom, NeNe, Grandma, or whoever the patient may want to reach.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>When the patient taps a Call button</strong>
+            <p>Vonnie will prompt to call the saved number. The caregiver or patient can confirm the call.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="guide-card">
+      <h2><span class="icon">⚙️</span> Settings Overview</h2>
+      <ol class="steps">
+        <li class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Dark Mode</strong>
+            <p>Toggle dark mode for low-light environments (night shifts, dim rooms).</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Voice Speed</strong>
+            <p>Adjust how fast Vonnie speaks — slower is clearer, faster saves time.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Voice Selection</strong>
+            <p>Choose from voices available on your device. Vonnie auto-selects the warmest available voice, but you can override it here. Tap <strong>🎙️ Test Voice</strong> to preview.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>AI Integration</strong>
+            <p>Toggle individual AI providers on or off. Vonnie tries them in order — if one fails, it automatically moves to the next.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+  </div><!-- /caregivers -->
+
+  <!-- ══════════════════════════════════════════
+       FACILITY ADMINS
+  ══════════════════════════════════════════ -->
+  <div class="guide-section" id="section-admin">
+
+    <div class="guide-card">
+      <h2><span class="icon">🏥</span> Creating Your Facility (First Time Setup)</h2>
+      <ol class="steps">
+        <li class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Open the Admin Dashboard</strong>
+            <p>Visit <strong>vonnie-aac-b2jrq.netlify.app/admin.html</strong> — share this URL only with authorized admins.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Click "Create Facility"</strong>
+            <p>Switch to the Create Facility tab on the login screen.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Fill in your facility details</strong>
+            <div class="tip">🏥 <span><strong>Facility Name:</strong> e.g. "Mercy General Hospital — ICU Ward"</span></div>
+            <div class="tip">⚕️ <span><strong>Facility Type:</strong> Hospital, Rehab, SNF, School, Home, or General</span></div>
+            <div class="tip">📧 <span><strong>Admin Email:</strong> optional, for your records</span></div>
+            <div class="tip">🔢 <span><strong>Admin PIN:</strong> choose a 4–6 digit PIN — you'll need this to sign in</span></div>
+            <div class="tip">🔑 <span><strong>Registration Passcode:</strong> contact your V.O.N.N.I.E. administrator for this</span></div>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Save your facility code</strong>
+            <p>After creation, your unique Facility Code (e.g. <strong>MRC-4821</strong>) is displayed. <strong>Copy it and store it safely</strong> — caregivers need this code to link their tablets.</p>
+          </div>
+        </li>
+      </ol>
+      <div class="success-note">✅ <span>Your facility is now registered. The Overview tab shows your facility code and a QR code caregivers can scan to join.</span></div>
+    </div>
+
+    <div class="guide-card">
+      <h2><span class="icon">🎛️</span> Creating Button Sets</h2>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:16px;">Button Sets are named collections of communication buttons you can push to any or all facility devices at once — no need to configure each tablet individually.</p>
+      <ol class="steps">
+        <li class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Go to the Button Sets tab</strong>
+            <p>Click <strong>🎛️ Button Sets</strong> in the dashboard navigation.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Click ✨ New Button Set</strong>
+            <p>Give the set a descriptive name like <em>"ICU Ward"</em>, <em>"Stroke Recovery"</em>, or <em>"Room 214 — John"</em>.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Add buttons from the Preset Library</strong>
+            <p>Tap any preset button to add it to the set. You'll see a live preview of selected buttons below.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Or import from a device</strong>
+            <p>Switch to the <strong>Import from Device</strong> tab. In the V.O.N.N.I.E. app on a tablet, go to Settings → export the button config as JSON, copy it, and paste it here.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>Save the Button Set</strong>
+            <p>Tap <strong>💾 Save Button Set</strong>. The set appears in your dashboard.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <strong>Set a Button Set as Active</strong>
+            <p>Tap <strong>Set Active</strong> on any button set. All linked devices will automatically load this set on their next app open.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="guide-card">
+      <h2><span class="icon">📱</span> Registering Tablets / Devices</h2>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:16px;">Two ways to link a tablet to your facility:</p>
+      <ol class="steps">
+        <li class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Method A — QR Code (easiest)</strong>
+            <p>In the admin dashboard Overview tab, tap <strong>🖨️ Print QR</strong> to open a printable QR code page. Print it and post it near each tablet station. The caregiver scans it with the tablet camera — the app opens and automatically prompts to join your facility.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Method B — Manual code entry</strong>
+            <p>On the tablet, open V.O.N.N.I.E. → <strong>⚙️ Settings</strong> → scroll to <strong>🏥 Facility Mode</strong> → tap <strong>Join a Facility</strong> → enter the Facility Code (e.g. MRC-4821) and a label for that device (e.g. "Room 214 Tablet").</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Verify in the Devices tab</strong>
+            <p>Once joined, the tablet appears in the <strong>📱 Devices</strong> tab with a green dot indicating it's active.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="guide-card">
+      <h2><span class="icon">📡</span> Pushing Button Sets to All Devices</h2>
+      <ol class="steps">
+        <li class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Set a button set as Active</strong>
+            <p>In the Button Sets tab, tap <strong>Set Active</strong> on the configuration you want to push.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Go to the Devices tab</strong>
+            <p>Tap <strong>📡 Push to All Devices</strong> in the banner at the top.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Devices update automatically</strong>
+            <p>Every linked tablet will load the new button set the next time the app is opened — no manual steps needed on each device.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Assign different sets to specific devices</strong>
+            <p>In the Devices tab, use the dropdown next to any device to assign a specific button set — useful when different patients need different configurations.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="guide-card">
+      <h2><span class="icon">🔑</span> Signing Back In</h2>
+      <ol class="steps">
+        <li class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Go to admin.html</strong>
+            <p>Visit <strong>vonnie-aac-b2jrq.netlify.app/admin.html</strong></p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Enter your Facility Code + PIN</strong>
+            <p>Use the <strong>Sign In</strong> tab. Enter the facility code (e.g. MRC-4821) and your 4–6 digit PIN.</p>
+          </div>
+        </li>
+      </ol>
+      <div class="note">⚠️ <span><strong>Lost your PIN?</strong> Contact your V.O.N.N.I.E. administrator — PIN resets require database access.</span></div>
+    </div>
+
+  </div><!-- /admin -->
+
+  <!-- ══════════════════════════════════════════
+       QUICK REFERENCE
+  ══════════════════════════════════════════ -->
+  <div class="guide-section" id="section-reference">
+
+    <div class="guide-card">
+      <h2><span class="icon">📋</span> Preset Button Reference</h2>
+      <table class="ref-table">
+        <thead><tr><th>Icon</th><th>Button</th><th>Phrase Spoken</th></tr></thead>
+        <tbody>
+          <tr><td>😊</td><td>Happy</td><td>I am feeling happy today</td></tr>
+          <tr><td>😢</td><td>Sad / Pain</td><td>I am in pain or feeling sad</td></tr>
+          <tr><td>💊</td><td>Medicine</td><td>I need my medication please</td></tr>
+          <tr><td>💧</td><td>Water</td><td>I would like some water please</td></tr>
+          <tr><td>🍽️</td><td>Food</td><td>I am hungry and would like food please</td></tr>
+          <tr><td>🚿</td><td>Bathroom</td><td>I need help getting to the bathroom</td></tr>
+          <tr><td>🛁</td><td>Bath</td><td>I would like a bath or shower please</td></tr>
+          <tr><td>😴</td><td>Tired</td><td>I am very tired and need rest</td></tr>
+          <tr><td>🥵</td><td>Too Hot</td><td>I am too hot, can you help cool me down</td></tr>
+          <tr><td>🥶</td><td>Too Cold</td><td>I am too cold, can I have a blanket please</td></tr>
+          <tr><td>🔄</td><td>Reposition</td><td>Can you help me change my position please</td></tr>
+          <tr><td>📞</td><td>Call Family</td><td>I would like to call my family please</td></tr>
+          <tr><td>🆘</td><td>Emergency</td><td>I need urgent help right away</td></tr>
+          <tr><td>👍</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td>👎</td><td>No</td><td>No</td></tr>
+          <tr><td>🙏</td><td>Thank You</td><td>Thank you so much</td></tr>
+          <tr><td>❤️</td><td>Love You</td><td>I love you</td></tr>
+          <tr><td>📺</td><td>TV</td><td>Can you turn on the television please</td></tr>
+          <tr><td>😮</td><td>Discomfort</td><td>I am uncomfortable and need help</td></tr>
+          <tr><td>🏥</td><td>Doctor</td><td>I need to see a doctor or nurse please</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="guide-card">
+      <h2><span class="icon">🔗</span> Important Links</h2>
+      <ul class="toc">
+        <li><a href="index.html">💜 V.O.N.N.I.E. App <span class="arrow">→</span></a></li>
+        <li><a href="admin.html">🏥 Facility Admin Dashboard <span class="arrow">→</span></a></li>
+        <li><a href="flier.html">📄 Printable Marketing Flier <span class="arrow">→</span></a></li>
+      </ul>
+    </div>
+
+    <div class="guide-card">
+      <h2><span class="icon">❓</span> Troubleshooting</h2>
+      <ol class="steps">
+        <li class="step">
+          <div class="step-num">!</div>
+          <div class="step-body">
+            <strong>Vonnie isn't speaking</strong>
+            <p>Make sure your device volume is turned up. On iOS, also check the silent/mute switch on the side. Try tapping Settings → 🎙️ Test Voice.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">!</div>
+          <div class="step-body">
+            <strong>My custom buttons disappeared</strong>
+            <p>This happens if browser data was cleared. Open Settings → ✏️ Edit My Buttons and recreate them from your backup screenshot.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">!</div>
+          <div class="step-body">
+            <strong>App showing old version</strong>
+            <p>Do a hard refresh: <strong>Ctrl + Shift + R</strong> (Windows) or <strong>Cmd + Shift + R</strong> (Mac). On mobile, close and reopen the app.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">!</div>
+          <div class="step-body">
+            <strong>AI features not working</strong>
+            <p>AI requires an internet connection and API keys. Go to Settings → 🤖 AI Integration and make sure at least one provider has a valid key entered. The app still works fully offline without AI.</p>
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-num">!</div>
+          <div class="step-body">
+            <strong>Facility buttons not updating on tablet</strong>
+            <p>The tablet syncs every 5 minutes. To sync immediately: Settings → 🏥 Facility Mode → 🔄 Sync Now.</p>
+          </div>
+        </li>
+      </ol>
+      <div class="note">📧 <span>Need more help? Contact <strong>lesliemoody68@yahoo.com</strong></span></div>
+    </div>
+
+  </div><!-- /reference -->
+
+</div><!-- /guide-body -->
+
+<script>
+function showSection(id, btn) {
+  document.querySelectorAll('.guide-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.section-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
