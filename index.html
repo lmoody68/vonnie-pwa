@@ -10,6 +10,31 @@
     <title>V.O.N.N.I.E.</title>
 
     <style>
+        /* ── Caregiver Mode ── */
+        #caregiverMode { display:none; }
+        .mode-toggle { display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); border-radius:20px; padding:6px 14px; font-size:12px; font-weight:700; color:white; cursor:pointer; transition:background 0.2s; white-space:nowrap; }
+        .mode-toggle.caregiver-active { background:rgba(251,191,36,0.25); border-color:rgba(251,191,36,0.5); color:#fde68a; }
+        .cg-banner { background:linear-gradient(135deg,#78350f,#d97706); color:white; text-align:center; padding:10px 16px; font-size:14px; font-weight:700; letter-spacing:0.03em; }
+        .cg-cat-tabs { display:flex; overflow-x:auto; gap:8px; padding:12px 14px; background:#fffbf0; border-bottom:1px solid #fde68a; scrollbar-width:none; }
+        .cg-cat-tabs::-webkit-scrollbar { display:none; }
+        .cg-cat { padding:8px 16px; border-radius:20px; border:2px solid #fde68a; background:white; color:#92400e; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; flex-shrink:0; transition:all 0.15s; }
+        .cg-cat.active { background:#d97706; border-color:#d97706; color:white; }
+        .cg-questions { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; padding:14px; max-width:800px; margin:0 auto; }
+        .cg-q-btn { background:white; border:2px solid #fde68a; border-radius:16px; padding:18px 14px; text-align:center; cursor:pointer; font-size:14px; font-weight:600; color:#78350f; line-height:1.4; box-shadow:0 2px 8px rgba(217,119,6,0.12); transition:all 0.1s; display:flex; flex-direction:column; align-items:center; gap:8px; min-height:90px; justify-content:center; }
+        .cg-q-btn:active { transform:scale(0.96); background:#fef3c7; }
+        .cg-q-emoji { font-size:28px; }
+
+        /* YES / NO overlay */
+        #yesNoOverlay { position:fixed; inset:0; background:linear-gradient(160deg,#0f172a 0%,#1e1340 100%); z-index:250; display:none; flex-direction:column; align-items:center; justify-content:center; padding:24px; gap:24px; }
+        #yesNoOverlay.show { display:flex; }
+        .yn-question { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:20px; padding:22px 28px; font-size:22px; font-weight:700; color:white; text-align:center; line-height:1.4; max-width:500px; width:100%; }
+        .yn-label { font-size:13px; color:#a78bfa; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; }
+        .yn-buttons { display:grid; grid-template-columns:1fr 1fr; gap:16px; width:100%; max-width:500px; }
+        .yn-yes { background:linear-gradient(135deg,#065f46,#059669); border:none; border-radius:20px; padding:32px 20px; font-size:28px; font-weight:900; color:white; cursor:pointer; box-shadow:0 8px 24px rgba(5,150,105,0.4); transition:transform 0.1s,filter 0.1s; display:flex; flex-direction:column; align-items:center; gap:8px; }
+        .yn-no  { background:linear-gradient(135deg,#7f1d1d,#dc2626); border:none; border-radius:20px; padding:32px 20px; font-size:28px; font-weight:900; color:white; cursor:pointer; box-shadow:0 8px 24px rgba(220,38,38,0.4); transition:transform 0.1s,filter 0.1s; display:flex; flex-direction:column; align-items:center; gap:8px; }
+        .yn-yes:active,.yn-no:active { transform:scale(0.95); filter:brightness(0.9); }
+        .yn-yes span,.yn-no span { font-size:13px; font-weight:600; opacity:0.85; }
+        .yn-back { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:12px 24px; font-size:14px; font-weight:700; color:#c4b5fd; cursor:pointer; }
         /* ── Screenshot Toast ── */
         #screenshotToast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 500; opacity: 0; transition: opacity 0.4s; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.3); max-width: 90vw; white-space: normal; text-align: center; }
         #screenshotToast.show { opacity: 1; }
@@ -201,7 +226,38 @@
                 <div id="aiStatus" style="font-size: 11px; color: #a78bfa;">🤖 AI Ready</div>
             </div>
         </div>
-        <button onclick="showSettings()" style="font-size: 24px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; cursor: pointer; padding: 8px; color: white;" aria-label="Settings">⚙️</button>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <button id="modeToggleBtn" class="mode-toggle" onclick="toggleCaregiverMode()">🤝 Caregiver</button>
+            <button onclick="showSettings()" style="font-size: 24px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; cursor: pointer; padding: 8px; color: white;" aria-label="Settings">⚙️</button>
+        </div>
+    </div>
+
+    <!-- CAREGIVER MODE -->
+    <div id="caregiverMode">
+        <div class="cg-banner">🤝 Caregiver Mode — Ask a question, then the patient taps YES or NO</div>
+        <div class="cg-cat-tabs">
+            <button class="cg-cat active" onclick="setCgCat('needs',this)">🍽️ Basic Needs</button>
+            <button class="cg-cat" onclick="setCgCat('comfort',this)">😌 Comfort</button>
+            <button class="cg-cat" onclick="setCgCat('pain',this)">💊 Pain & Medical</button>
+            <button class="cg-cat" onclick="setCgCat('feelings',this)">💙 Feelings</button>
+            <button class="cg-cat" onclick="setCgCat('social',this)">🎵 Activities</button>
+        </div>
+        <div class="cg-questions" id="cgQuestions"></div>
+    </div>
+
+    <!-- YES / NO OVERLAY -->
+    <div id="yesNoOverlay">
+        <div class="yn-label">Vonnie is asking...</div>
+        <div class="yn-question" id="ynQuestion">Are you hungry?</div>
+        <div class="yn-buttons">
+            <button class="yn-yes" onclick="answerQuestion('yes')">
+                ✅<span>YES</span>
+            </button>
+            <button class="yn-no" onclick="answerQuestion('no')">
+                ❌<span>NO</span>
+            </button>
+        </div>
+        <button class="yn-back" onclick="closeYesNo()">← Ask Another Question</button>
     </div>
 
     <!-- PRIMARY BUTTONS -->
@@ -708,6 +764,35 @@
         /* ============================
            SPEECH SYNTHESIS
         ============================ */
+        // Preferred voice names — ordered from most natural to least.
+        // These are the warmest, least robotic voices across platforms.
+        const PREFERRED_VOICES = [
+            'Samantha',                                    // iOS/macOS — best overall
+            'Karen',                                       // iOS Australian
+            'Moira',                                       // iOS Irish
+            'Tessa',                                       // iOS South African
+            'Microsoft Jenny Online (Natural) - English (United States)',
+            'Microsoft Aria Online (Natural) - English (United States)',
+            'Microsoft Zira - English (United States)',    // Windows fallback
+            'Google UK English Female',
+            'Google US English',
+            'Alex',                                        // macOS
+            'Victoria',                                    // macOS
+        ];
+
+        function getPreferredVoice() {
+            if (settings.selectedVoice) {
+                const chosen = voices.find(v => v.name === settings.selectedVoice);
+                if (chosen) return chosen;
+            }
+            for (const name of PREFERRED_VOICES) {
+                const v = voices.find(v => v.name === name);
+                if (v) return v;
+            }
+            // Fall back to any English voice
+            return voices.find(v => v.lang && v.lang.startsWith('en')) || voices[0] || null;
+        }
+
         function speak(text) {
             if (!window.speechSynthesis) return;
             const ss = window.speechSynthesis;
@@ -717,14 +802,12 @@
             // Any setTimeout wrapper breaks iOS's trusted-gesture requirement and
             // causes silent failures on iPad/iPhone.
             const utter = new SpeechSynthesisUtterance(text);
-            utter.rate   = settings.voiceSpeed  || 0.9;
-            utter.pitch  = settings.voicePitch  || 1;
+            utter.rate   = settings.voiceSpeed  || 0.88;  // slightly slower = warmer
+            utter.pitch  = settings.voicePitch  || 1.08;  // slightly higher = softer
             utter.volume = settings.voiceVolume || 1;
 
-            if (settings.selectedVoice) {
-                const match = voices.find(v => v.name === settings.selectedVoice);
-                if (match) utter.voice = match;
-            }
+            const preferredVoice = getPreferredVoice();
+            if (preferredVoice) utter.voice = preferredVoice;
 
             lastPhrase = text;
             isSpeaking = true;
@@ -749,10 +832,12 @@
         function setOrbSpeaking(active) {
             const orb = document.getElementById('statusOrb');
             if (active) {
-                orb.style.background = '#22c55e';
+                orb.textContent = '🔊';
+                orb.style.background = 'rgba(167,139,250,0.4)';
                 orb.style.animation = 'pulse 1.5s infinite';
             } else {
-                orb.style.background = '#3b82f6';
+                orb.textContent = '💜';
+                orb.style.background = 'rgba(255,255,255,0.2)';
                 orb.style.animation = '';
             }
         }
@@ -788,7 +873,7 @@
         }
 
         function testVoice() {
-            speak('Hello! I am VONNIE. I am always here for you.');
+            speak("Hello. I'm Vonnie, your communication companion. I'm always here for you.");
         }
 
         /* ============================
@@ -1338,6 +1423,112 @@
             navigator.serviceWorker.register('./sw.js').catch(() => {
                 // Fail silently — app still works without SW
             });
+        }
+
+        /* ============================
+           CAREGIVER MODE
+        ============================ */
+        let caregiverModeActive = false;
+        let currentYesNoQuestion = '';
+
+        const CG_QUESTIONS = {
+            needs: [
+                { emoji:'🍽️', q:'Are you hungry?' },
+                { emoji:'💧', q:'Would you like some water?' },
+                { emoji:'🚿', q:'Do you need the bathroom?' },
+                { emoji:'😴', q:'Are you tired and need to rest?' },
+                { emoji:'🍵', q:'Would you like something warm to drink?' },
+                { emoji:'🍦', q:'Would you like a snack?' },
+            ],
+            comfort: [
+                { emoji:'🔄', q:'Do you need to be repositioned?' },
+                { emoji:'🥵', q:'Are you too hot?' },
+                { emoji:'🥶', q:'Are you too cold? Would you like a blanket?' },
+                { emoji:'💡', q:'Is the light bothering you?' },
+                { emoji:'🔇', q:'Is the noise bothering you?' },
+                { emoji:'🛏️', q:'Would you like to lie down?' },
+            ],
+            pain: [
+                { emoji:'😣', q:'Are you in pain right now?' },
+                { emoji:'📈', q:'Is your pain getting worse?' },
+                { emoji:'💊', q:'Do you need your medication?' },
+                { emoji:'🤢', q:'Are you feeling nauseous?' },
+                { emoji:'😮‍💨', q:'Are you having trouble breathing?' },
+                { emoji:'🏥', q:'Do you need a nurse or doctor right now?' },
+            ],
+            feelings: [
+                { emoji:'😊', q:'Are you feeling okay right now?' },
+                { emoji:'😢', q:'Are you feeling sad or upset?' },
+                { emoji:'😰', q:'Are you feeling anxious or worried?' },
+                { emoji:'😔', q:'Are you feeling lonely?' },
+                { emoji:'😤', q:'Is something bothering you?' },
+                { emoji:'❤️', q:'Do you know how much we love you?' },
+            ],
+            social: [
+                { emoji:'📺', q:'Would you like to watch TV?' },
+                { emoji:'🎵', q:'Would you like to listen to music?' },
+                { emoji:'📞', q:'Would you like to call someone?' },
+                { emoji:'📖', q:'Would you like me to read to you?' },
+                { emoji:'🌳', q:'Would you like to go outside or near a window?' },
+                { emoji:'🤫', q:'Would you like some quiet time alone?' },
+            ],
+        };
+
+        function toggleCaregiverMode() {
+            caregiverModeActive = !caregiverModeActive;
+            const btn = document.getElementById('modeToggleBtn');
+            const cgDiv = document.getElementById('caregiverMode');
+            const patientContent = document.querySelectorAll('#buttons, #secondaryButtons, #facilitySection, #customSection, #aiChips, .say-anything-btn, #moreBtn, #facilityButtons');
+
+            if (caregiverModeActive) {
+                btn.textContent = '💙 Patient Mode';
+                btn.classList.add('caregiver-active');
+                cgDiv.style.display = '';
+                patientContent.forEach(el => { el.style.display = 'none'; });
+                document.querySelector('div[style*="margin-bottom: 60px"]') && (document.querySelector('div[style*="margin-bottom: 60px"]').style.display = 'none');
+                setCgCat('needs', document.querySelector('.cg-cat'));
+                speak("Caregiver mode is on. Tap a question to ask the patient.");
+            } else {
+                btn.textContent = '🤝 Caregiver';
+                btn.classList.remove('caregiver-active');
+                cgDiv.style.display = 'none';
+                document.getElementById('yesNoOverlay').classList.remove('show');
+                patientContent.forEach(el => { el.style.display = ''; });
+                const controls = document.querySelector('div[style*="margin-bottom: 60px"]');
+                if (controls) controls.style.display = '';
+                speak("Patient mode is on. Tap any button to speak.");
+            }
+        }
+
+        function setCgCat(cat, btn) {
+            document.querySelectorAll('.cg-cat').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const grid = document.getElementById('cgQuestions');
+            grid.innerHTML = (CG_QUESTIONS[cat] || []).map(item => `
+                <button class="cg-q-btn" onclick="askCaregiverQuestion(${JSON.stringify(item.q)})">
+                    <span class="cg-q-emoji">${item.emoji}</span>
+                    ${item.q}
+                </button>`).join('');
+        }
+
+        function askCaregiverQuestion(question) {
+            currentYesNoQuestion = question;
+            document.getElementById('ynQuestion').textContent = question;
+            document.getElementById('yesNoOverlay').classList.add('show');
+            speak(question);
+        }
+
+        function answerQuestion(answer) {
+            const spoken = answer === 'yes'
+                ? 'Yes.'
+                : 'No.';
+            speak(spoken);
+            // Brief delay then close overlay so caregiver hears the answer
+            setTimeout(closeYesNo, 2200);
+        }
+
+        function closeYesNo() {
+            document.getElementById('yesNoOverlay').classList.remove('show');
         }
 
         /* ============================
