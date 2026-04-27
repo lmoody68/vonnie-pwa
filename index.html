@@ -1485,7 +1485,7 @@
             if (caregiverModeActive) {
                 btn.textContent = '💙 Patient Mode';
                 btn.classList.add('caregiver-active');
-                cgDiv.style.display = '';
+                cgDiv.style.display = 'block';
                 patientContent.forEach(el => { el.style.display = 'none'; });
                 document.querySelector('div[style*="margin-bottom: 60px"]') && (document.querySelector('div[style*="margin-bottom: 60px"]').style.display = 'none');
                 setCgCat('needs', document.querySelector('.cg-cat'));
