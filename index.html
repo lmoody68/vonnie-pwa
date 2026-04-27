@@ -299,7 +299,7 @@
     </div>
 
     <!-- SCREENSHOT TOAST -->
-    <div id="screenshotToast">📸 Buttons saved! Take a screenshot as a backup.</div>
+    <div id="screenshotToast">☁️ Buttons saved &amp; backed up to the cloud!</div>
 
     <!-- INSTALL BANNER -->
     <div id="installBanner">
@@ -407,6 +407,24 @@
 
             <button onclick="openBtnEditor()" style="width:100%;padding:14px;background:#f0fdf4;border:2px solid #22c55e;border-radius:10px;color:#15803d;font-size:15px;font-weight:700;cursor:pointer;margin-top:20px;">✏️ Edit My Buttons</button>
 
+            <!-- Cloud Backup / Restore -->
+            <div id="restoreCodeBox" style="display:none;margin-top:16px;background:linear-gradient(135deg,#fdf4ff,#f5f0ff);border:2px solid #ddd6fe;border-radius:14px;padding:14px 16px;">
+                <div style="font-size:11px;font-weight:700;color:#7c3aed;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px;">☁️ Your Button Backup Code</div>
+                <div id="restoreCodeDisplay" style="font-family:monospace;font-size:20px;font-weight:800;color:#2d1a4e;letter-spacing:0.08em;margin-bottom:6px;"></div>
+                <div style="font-size:12px;color:#6b7280;line-height:1.6;">Write this code down. If your browser resets, enter it below to instantly restore all your buttons.</div>
+            </div>
+
+            <div style="margin-top:12px;">
+                <div style="font-size:12px;font-weight:700;color:#4b5563;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">🔄 Restore Buttons from Backup</div>
+                <div style="display:flex;gap:8px;">
+                    <input type="text" id="restoreCodeInput" placeholder="Enter backup code (VONNIE-XXXXXX)"
+                           style="flex:1;padding:11px;border:2px solid #ddd6fe;border-radius:10px;font-size:13px;font-family:monospace;text-transform:uppercase;outline:none;color:#2d1a4e;"
+                           oninput="this.value=this.value.toUpperCase()">
+                    <button onclick="doRestoreButtons()" style="padding:11px 16px;background:linear-gradient(135deg,#5b3fa0,#7c3aed);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">Restore</button>
+                </div>
+                <div id="restoreMsg" style="font-size:12px;margin-top:6px;display:none;"></div>
+            </div>
+
             <a href="guide.html" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:#f5f0ff;border:2px solid #ddd6fe;border-radius:10px;color:#5b3fa0;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px;text-decoration:none;">📖 User Guide &amp; Help</a>
 
             <!-- ── FACILITY MODE SECTION ── -->
@@ -504,7 +522,7 @@
             <ul class="editor-list" id="editorList"></ul>
             <p id="editorEmpty" style="text-align:center;color:#9ca3af;padding:20px 0;display:none;">No custom buttons yet.<br>Tap ➕ to add your first one.</p>
             <div id="screenshotTip" style="display:none;margin-top:16px;padding:12px;background:#fefce8;border:1px solid #fde047;border-radius:10px;font-size:13px;color:#713f12;line-height:1.6;">
-                📸 <strong>Backup tip:</strong> Take a screenshot of this screen after setting up your buttons. If the browser ever resets, you'll know exactly what to recreate.
+                ☁️ <strong>Auto-backed up!</strong> Your buttons are saved to the cloud. If the browser resets, go to Settings → enter your Backup Code to restore them instantly.
             </div>
         </div>
     </div>
@@ -661,6 +679,7 @@
             renderButtons(primaryButtons, 'buttons');
             renderButtons(secondaryButtons, 'secondaryButtons');
             renderCustomButtons();
+            updateRestoreCodeDisplay();
             loadVoices();
             updateUIFromSettings();
             updateConnectionStatus();
@@ -1237,8 +1256,55 @@
         let selectedEmoji = '⭐';
         let selectedColorIdx = 0;
 
+        /* ── Personal Cloud Backup ── */
+        function getOrCreateRestoreCode() {
+            let code = localStorage.getItem('vonnie_restore_code');
+            if (!code) {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                code = 'VONNIE-' + Array.from({length:6}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+                localStorage.setItem('vonnie_restore_code', code);
+            }
+            return code;
+        }
+
+        async function cloudBackupButtons() {
+            if (!customButtons.length) return;
+            const code = getOrCreateRestoreCode();
+            try {
+                await sbFetch('personal_backups', {
+                    method: 'POST',
+                    headers: { ...SB_HDR, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+                    body: JSON.stringify({ restore_code: code, buttons: customButtons })
+                });
+                updateRestoreCodeDisplay();
+            } catch(e) { /* silent — local save already happened */ }
+        }
+
+        async function restoreButtonsFromCloud(code) {
+            const rows = await sbFetch(`personal_backups?restore_code=eq.${encodeURIComponent(code.trim().toUpperCase())}`);
+            if (!rows || !rows.length) return false;
+            const btns = typeof rows[0].buttons === 'string' ? JSON.parse(rows[0].buttons) : rows[0].buttons;
+            if (!btns || !btns.length) return false;
+            customButtons = btns;
+            localStorage.setItem('vonnie_custom_buttons', JSON.stringify(customButtons));
+            localStorage.setItem('vonnie_restore_code', code.trim().toUpperCase());
+            renderCustomButtons();
+            updateRestoreCodeDisplay();
+            return true;
+        }
+
+        function updateRestoreCodeDisplay() {
+            const code = localStorage.getItem('vonnie_restore_code');
+            const box  = document.getElementById('restoreCodeBox');
+            const inp  = document.getElementById('restoreCodeDisplay');
+            if (!box || !inp) return;
+            if (code) { box.style.display = ''; inp.textContent = code; }
+            else       { box.style.display = 'none'; }
+        }
+
         function saveCustomButtons() {
             localStorage.setItem('vonnie_custom_buttons', JSON.stringify(customButtons));
+            cloudBackupButtons(); // auto-backup to Supabase silently
         }
 
         function renderCustomButtons() {
@@ -1405,6 +1471,23 @@
             renderCustomButtons();
             closeBtnForm();
             showScreenshotToast();
+        }
+
+        async function doRestoreButtons() {
+            const code = document.getElementById('restoreCodeInput').value.trim().toUpperCase();
+            const msg  = document.getElementById('restoreMsg');
+            if (!code) { msg.style.display=''; msg.style.color='#dc2626'; msg.textContent='Please enter your backup code.'; return; }
+            msg.style.display=''; msg.style.color='#6b7280'; msg.textContent='Restoring...';
+            const ok = await restoreButtonsFromCloud(code);
+            if (ok) {
+                msg.style.color='#059669';
+                msg.textContent=`✅ ${customButtons.length} button${customButtons.length!==1?'s':''} restored successfully!`;
+                document.getElementById('restoreCodeInput').value='';
+                renderEditorList();
+            } else {
+                msg.style.color='#dc2626';
+                msg.textContent='Code not found. Check the code and try again.';
+            }
         }
 
         function showScreenshotToast() {
