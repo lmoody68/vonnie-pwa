@@ -962,16 +962,16 @@
             const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
             const day = days[new Date().getDay()];
             const part = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
-            const prompt = `Generate one warm, brief greeting for Vonnie. It's ${part} on ${day}. Be encouraging and personal. One sentence only. Don't start with "Good ${part}". Be creative and caring.`;
+            const prompt = `You are V.O.N.N.I.E., a caring communication device that speaks on behalf of people who cannot speak. Generate one warm spoken greeting to open the app. It is ${part} on ${day}. Start with "Good ${part}." Then briefly introduce yourself as V.O.N.N.I.E. and invite the user to tell you what they need. Two sentences maximum. Warm, gentle, and reassuring.`;
             const result = await callAI(prompt, VONNIE_SYSTEM);
             return result || defaultGreeting();
         }
 
         function defaultGreeting() {
             const h = new Date().getHours();
-            if (h < 12) return "Good morning, Vonnie. I'm here with you today.";
-            if (h < 17) return "Good afternoon, Vonnie. I'm always here for you.";
-            return "Good evening, Vonnie. I'm right here whenever you need me.";
+            if (h < 12) return "Good morning. I'm V.O.N.N.I.E., your communication companion — I'm here and ready to speak for you.";
+            if (h < 17) return "Good afternoon. I'm V.O.N.N.I.E., your communication device — tap any button and I'll give you your voice.";
+            return "Good evening. I'm V.O.N.N.I.E., your communication companion — I'm right here. Tell me what you need.";
         }
 
         /* ---- FOLLOW-UP CHIPS ---- */
