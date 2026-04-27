@@ -1595,19 +1595,30 @@
 
         let _currentCgCat = 'needs';
 
+        // Event delegation — one listener on the grid handles all question buttons
+        // regardless of when they were created (survives innerHTML replacements)
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('cgQuestions').addEventListener('click', function(e) {
+                const btn = e.target.closest('[data-cg-q]');
+                if (btn) askCaregiverQuestion(btn.getAttribute('data-cg-q'));
+            });
+            document.getElementById('cgQuestions').addEventListener('touchend', function(e) {
+                const btn = e.target.closest('[data-cg-q]');
+                if (btn) { e.preventDefault(); askCaregiverQuestion(btn.getAttribute('data-cg-q')); }
+            }, { passive: false });
+        });
+
         function setCgCat(cat, btn) {
             _currentCgCat = cat;
             document.querySelectorAll('.cg-cat').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             const grid = document.getElementById('cgQuestions');
-            grid.innerHTML = '';
-            (CG_QUESTIONS[cat] || []).forEach((item, i) => {
-                const el = document.createElement('button');
-                el.className = 'cg-q-btn';
-                el.innerHTML = `<span class="cg-q-emoji">${item.emoji}</span>${item.q}`;
-                el.addEventListener('click', () => askCaregiverQuestion(item.q));
-                grid.appendChild(el);
-            });
+            // Store question text in data attribute — no JS closure, no quoting issues
+            grid.innerHTML = (CG_QUESTIONS[cat] || []).map(item =>
+                `<button class="cg-q-btn" data-cg-q="${item.q.replace(/"/g,'&quot;')}">
+                    <span class="cg-q-emoji">${item.emoji}</span>${item.q}
+                </button>`
+            ).join('');
         }
 
         function askCaregiverQuestion(question) {
