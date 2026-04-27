@@ -314,40 +314,55 @@
             <button class="cg-cat" onclick="setCgCat('pain',this)">💊 Pain & Medical</button>
             <button class="cg-cat" onclick="setCgCat('feelings',this)">💙 Feelings</button>
             <button class="cg-cat" onclick="setCgCat('social',this)">🎵 Activities</button>
-            <button class="cg-cat cg-custom-tab" onclick="setCgCat('custom',this)">⭐ My Questions</button>
+            <button class="cg-cat cg-custom-tab" onclick="setCgCat('custom',this)">🏥 My Care Questions</button>
         </div>
         <div class="cg-questions" id="cgQuestions"></div>
-        <!-- Custom question add button — only visible on My Questions tab -->
+        <!-- Add button — only visible on My Care Questions tab -->
         <div id="cgAddRow" style="display:none;padding:0 14px 14px;max-width:800px;margin:0 auto;">
-            <button onclick="openCgQuestionEditor()" style="width:100%;padding:13px;background:linear-gradient(135deg,#5b3fa0,#7c6fcd);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">➕ Add My Question</button>
+            <button onclick="openCgQuestionEditor()" style="width:100%;padding:13px;background:linear-gradient(135deg,#0f4c81,#1d6fa5);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">➕ Add Care Question</button>
         </div>
     </div>
 
-    <!-- CUSTOM CAREGIVER QUESTION EDITOR MODAL -->
+    <!-- MY CARE QUESTIONS EDITOR MODAL -->
     <div id="cgQModal" class="modal" onclick="closeCgQuestionEditor()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                <h2 style="font-size:18px;color:#2d1a4e;" id="cgQModalTitle">➕ Add My Question</h2>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <h2 style="font-size:18px;color:#2d1a4e;" id="cgQModalTitle">🏥 Add Care Question</h2>
                 <button onclick="closeCgQuestionEditor()" style="font-size:26px;background:none;border:none;cursor:pointer;color:#9ca3af;">×</button>
             </div>
-            <p style="font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:16px;">
-                Write a YES/NO question for your patient. Vonnie will speak it aloud and show YES/NO buttons for the patient to tap.
+            <p style="font-size:13px;color:#6b7280;line-height:1.5;margin-bottom:14px;">
+                Create a medical or care question specific to your patient. Vonnie speaks it aloud — patient taps YES or NO.
             </p>
+
+            <!-- Medical emoji picker -->
             <div style="margin-bottom:14px;">
-                <label style="display:block;font-size:12px;font-weight:700;color:#4b5563;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">Question Emoji</label>
-                <input type="text" id="cgQEmoji" placeholder="⭐" maxlength="4"
-                       style="width:80px;padding:12px;border:2px solid #ddd6fe;border-radius:10px;font-size:22px;text-align:center;outline:none;">
+                <label style="display:block;font-size:12px;font-weight:700;color:#4b5563;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Select an Icon</label>
+                <div id="cgEmojiPicker" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+                </div>
+                <input type="text" id="cgQEmoji" placeholder="💊" maxlength="4"
+                       style="width:64px;padding:10px;border:2px solid #ddd6fe;border-radius:10px;font-size:20px;text-align:center;outline:none;"
+                       oninput="highlightSelectedEmoji(this.value)">
+                <span style="font-size:11px;color:#9ca3af;margin-left:8px;">or type your own</span>
             </div>
-            <div style="margin-bottom:20px;">
+
+            <!-- Starter templates -->
+            <div style="margin-bottom:14px;">
+                <label style="display:block;font-size:12px;font-weight:700;color:#4b5563;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Quick Templates — tap to use</label>
+                <div id="cgTemplates" style="display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;"></div>
+            </div>
+
+            <!-- Question text -->
+            <div style="margin-bottom:18px;">
                 <label style="display:block;font-size:12px;font-weight:700;color:#4b5563;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">Question Text</label>
-                <input type="text" id="cgQText" placeholder='e.g. "Do you want to watch Jeopardy?"'
+                <input type="text" id="cgQText" placeholder='e.g. "Is your pain worse than this morning?"'
                        style="width:100%;padding:13px;border:2px solid #ddd6fe;border-radius:10px;font-size:14px;outline:none;color:#2d1a4e;"
                        touch-action="manipulation" spellcheck="true">
-                <div style="font-size:11px;color:#9ca3af;margin-top:5px;">Make sure it can be answered with YES or NO.</div>
+                <div style="font-size:11px;color:#9ca3af;margin-top:4px;">Must be answerable with YES or NO.</div>
             </div>
+
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <button onclick="closeCgQuestionEditor()" style="padding:13px;background:#f3f4f6;border:2px solid #e5e7eb;border-radius:10px;font-size:14px;font-weight:600;color:#6b7280;cursor:pointer;">Cancel</button>
-                <button onclick="saveCgQuestion()" style="padding:13px;background:linear-gradient(135deg,#5b3fa0,#7c6fcd);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">✅ Save Question</button>
+                <button onclick="saveCgQuestion()" style="padding:13px;background:linear-gradient(135deg,#0f4c81,#1d6fa5);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">✅ Save Question</button>
             </div>
         </div>
     </div>
@@ -1826,87 +1841,34 @@
             }, { passive: false });
         });
 
-        function setCgCat(cat, btn) {
-            _currentCgCat = cat;
-            document.querySelectorAll('.cg-cat').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const grid = document.getElementById('cgQuestions');
-            // Store question text in data attribute — no JS closure, no quoting issues
-            grid.innerHTML = (CG_QUESTIONS[cat] || []).map(item =>
-                `<button class="cg-q-btn" data-cg-q="${item.q.replace(/"/g,'&quot;')}">
-                    <span class="cg-q-emoji">${item.emoji}</span>${item.q}
-                </button>`
-            ).join('');
-        }
-
-        function askCaregiverQuestion(question) {
-            currentYesNoQuestion = question;
-            document.getElementById('ynQuestion').textContent = question;
-            document.getElementById('yesNoOverlay').classList.add('show');
-            speak(question);
-        }
-
-        function answerQuestion(answer) {
-            const spoken = answer === 'yes'
-                ? 'Yes.'
-                : 'No.';
-            speak(spoken);
-            // Brief delay then close overlay so caregiver hears the answer
-            setTimeout(closeYesNo, 2200);
-        }
-
-        function closeYesNo() {
-            document.getElementById('yesNoOverlay').classList.remove('show');
-        }
-
-        /* ============================
-           CUSTOM CAREGIVER QUESTIONS
-        ============================ */
+        /* ── ONE clean setCgCat — handles all tabs including My Care Questions ── */
         let customCgQuestions = JSON.parse(localStorage.getItem('vonnie_cg_questions') || '[]');
         let editingCgQIdx = -1;
 
-        function saveCgQuestionsLocal() {
-            localStorage.setItem('vonnie_cg_questions', JSON.stringify(customCgQuestions));
-        }
+        const MEDICAL_EMOJIS = ['💊','🩺','🌡️','🩹','🏥','🩸','💉','🧠','🫀','🫁','🦴','👁️','🦷','🩻','😣','🤢','🥵','🥶','💤','🚑'];
 
-        // Extend setCgCat to handle 'custom' category
-        const _origSetCgCat = setCgCat;
-        function setCgCat(cat, btn) {
-            _origSetCgCat(cat, btn);
-            document.getElementById('cgAddRow').style.display = cat === 'custom' ? '' : 'none';
-        }
+        const CG_TEMPLATES = [
+            { emoji:'😣', q:'Is your pain worse than earlier?' },
+            { emoji:'💊', q:'Do you need your pain medication?' },
+            { emoji:'🤢', q:'Are you feeling nauseous?' },
+            { emoji:'🥵', q:'Are you having trouble breathing?' },
+            { emoji:'🩸', q:'Is your wound or IV site bothering you?' },
+            { emoji:'🌡️', q:'Do you feel like you have a fever?' },
+            { emoji:'🥶', q:'Are you feeling dizzy or lightheaded?' },
+            { emoji:'💤', q:'Is your current medication making you sleepy?' },
+            { emoji:'🩺', q:'Do you want me to call the nurse?' },
+            { emoji:'🏥', q:'Do you need to see the doctor today?' },
+            { emoji:'🦴', q:'Is your back or body aching?' },
+            { emoji:'👁️', q:'Is the light bothering your eyes?' },
+        ];
 
-        // Override the 'custom' branch in setCgCat
-        const _origCgGridBuild = window._buildCgGrid;
-        function _buildCustomCgGrid() {
-            const grid = document.getElementById('cgQuestions');
-            grid.innerHTML = '';
-            if (!customCgQuestions.length) {
-                grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:#9ca3af;">
-                    <div style="font-size:40px;margin-bottom:12px;">⭐</div>
-                    <div style="font-size:14px;font-weight:600;">No custom questions yet.</div>
-                    <div style="font-size:13px;margin-top:4px;">Tap ➕ Add My Question to create one.</div>
-                </div>`;
-                return;
-            }
-            customCgQuestions.forEach((item, i) => {
-                const btn = document.createElement('button');
-                btn.className = 'cg-q-btn';
-                btn.dataset.cgQ = item.q;
-                btn.innerHTML = `<span class="cg-q-emoji">${item.emoji || '⭐'}</span>${item.q}
-                    <button class="cg-q-delete" onclick="deleteCgQuestion(event,${i})" title="Delete">🗑</button>`;
-                grid.appendChild(btn);
-            });
-        }
-
-        // Patch setCgCat to intercept 'custom'
         function setCgCat(cat, btn) {
             _currentCgCat = cat;
             document.querySelectorAll('.cg-cat').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById('cgAddRow').style.display = cat === 'custom' ? '' : 'none';
             if (cat === 'custom') {
-                _buildCustomCgGrid();
+                buildCustomCgGrid();
             } else {
                 const grid = document.getElementById('cgQuestions');
                 grid.innerHTML = (CG_QUESTIONS[cat] || []).map(item =>
@@ -1917,13 +1879,85 @@
             }
         }
 
+        function buildCustomCgGrid() {
+            const grid = document.getElementById('cgQuestions');
+            grid.innerHTML = '';
+            if (!customCgQuestions.length) {
+                grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:36px 20px;color:#9ca3af;">
+                    <div style="font-size:40px;margin-bottom:12px;">🏥</div>
+                    <div style="font-size:14px;font-weight:600;color:#4b5563;">No care questions yet.</div>
+                    <div style="font-size:13px;margin-top:6px;">Tap ➕ Add Care Question to create one.</div>
+                </div>`;
+                return;
+            }
+            customCgQuestions.forEach((item, i) => {
+                const el = document.createElement('button');
+                el.className = 'cg-q-btn';
+                el.dataset.cgQ = item.q;
+                el.innerHTML = `<span class="cg-q-emoji">${item.emoji || '🏥'}</span>${item.q}
+                    <button class="cg-q-delete" onclick="deleteCgQuestion(event,${i})" title="Delete">🗑</button>`;
+                grid.appendChild(el);
+            });
+        }
+
+        function askCaregiverQuestion(question) {
+            currentYesNoQuestion = question;
+            document.getElementById('ynQuestion').textContent = question;
+            document.getElementById('yesNoOverlay').classList.add('show');
+            speak(question);
+        }
+
+        function answerQuestion(answer) {
+            speak(answer === 'yes' ? 'Yes.' : 'No.');
+            setTimeout(closeYesNo, 2200);
+        }
+
+        function closeYesNo() {
+            document.getElementById('yesNoOverlay').classList.remove('show');
+        }
+
         function openCgQuestionEditor(idx = -1) {
             editingCgQIdx = idx;
             const item = idx >= 0 ? customCgQuestions[idx] : null;
-            document.getElementById('cgQModalTitle').textContent = idx >= 0 ? '✏️ Edit Question' : '➕ Add My Question';
-            document.getElementById('cgQEmoji').value  = item ? item.emoji : '⭐';
-            document.getElementById('cgQText').value   = item ? item.q     : '';
+            document.getElementById('cgQModalTitle').textContent = idx >= 0 ? '✏️ Edit Care Question' : '🏥 Add Care Question';
+            document.getElementById('cgQEmoji').value = item ? item.emoji : '💊';
+            document.getElementById('cgQText').value  = item ? item.q     : '';
+
+            // Build medical emoji picker
+            const picker = document.getElementById('cgEmojiPicker');
+            picker.innerHTML = MEDICAL_EMOJIS.map(e =>
+                `<button onclick="pickCgEmoji('${e}')" style="font-size:24px;padding:8px;background:#f5f0ff;border:2px solid transparent;border-radius:10px;cursor:pointer;min-width:44px;min-height:44px;" data-emoji="${e}">${e}</button>`
+            ).join('');
+
+            // Build starter templates
+            const tmpl = document.getElementById('cgTemplates');
+            tmpl.innerHTML = CG_TEMPLATES.map(t =>
+                `<button onclick="useCgTemplate('${t.emoji}','${t.q.replace(/'/g,"\\'")}')"
+                    style="text-align:left;padding:9px 12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:9px;font-size:13px;color:#0c4a6e;cursor:pointer;display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:18px;">${t.emoji}</span> ${t.q}
+                </button>`
+            ).join('');
+
+            highlightSelectedEmoji(item ? item.emoji : '💊');
             document.getElementById('cgQModal').classList.add('show');
+        }
+
+        function pickCgEmoji(e) {
+            document.getElementById('cgQEmoji').value = e;
+            highlightSelectedEmoji(e);
+        }
+
+        function highlightSelectedEmoji(val) {
+            document.querySelectorAll('#cgEmojiPicker button').forEach(b => {
+                b.style.borderColor = b.dataset.emoji === val ? '#7c3aed' : 'transparent';
+                b.style.background  = b.dataset.emoji === val ? '#ede9fe' : '#f5f0ff';
+            });
+        }
+
+        function useCgTemplate(emoji, q) {
+            document.getElementById('cgQEmoji').value = emoji;
+            document.getElementById('cgQText').value  = q;
+            highlightSelectedEmoji(emoji);
         }
 
         function closeCgQuestionEditor() {
@@ -1931,7 +1965,7 @@
         }
 
         function saveCgQuestion() {
-            const emoji = document.getElementById('cgQEmoji').value.trim() || '⭐';
+            const emoji = document.getElementById('cgQEmoji').value.trim() || '🏥';
             const q     = document.getElementById('cgQText').value.trim();
             if (!q) { alert('Please enter a question.'); return; }
             if (editingCgQIdx >= 0) {
@@ -1939,17 +1973,17 @@
             } else {
                 customCgQuestions.push({ emoji, q });
             }
-            saveCgQuestionsLocal();
+            localStorage.setItem('vonnie_cg_questions', JSON.stringify(customCgQuestions));
             closeCgQuestionEditor();
-            _buildCustomCgGrid();
+            buildCustomCgGrid();
         }
 
         function deleteCgQuestion(e, i) {
             e.stopPropagation();
             if (!confirm(`Delete "${customCgQuestions[i].q}"?`)) return;
             customCgQuestions.splice(i, 1);
-            saveCgQuestionsLocal();
-            _buildCustomCgGrid();
+            localStorage.setItem('vonnie_cg_questions', JSON.stringify(customCgQuestions));
+            buildCustomCgGrid();
         }
 
         /* ============================
