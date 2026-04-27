@@ -162,7 +162,7 @@
             #moreBtn { padding: 11px 16px; font-size: 15px; margin-bottom: 8px; }
             .footer { padding: 7px; font-size: 11px; }
             /* Controls row — stack STOP/REPEAT horizontally and reduce padding */
-            div[style*="margin-bottom: 60px"] { margin-bottom: 48px !important; padding: 8px 12px !important; }
+            #controlsRow { margin-bottom: 48px !important; padding: 8px 12px !important; }
         }
 
         /* ---- AI settings section ---- */
@@ -282,7 +282,7 @@
     <div id="aiChips" class="hidden"></div>
 
     <!-- CONTROLS -->
-    <div style="padding: 16px; max-width: 800px; margin: 0 auto; margin-bottom: 60px;">
+    <div id="controlsRow" style="padding: 16px; max-width: 800px; margin: 0 auto; margin-bottom: 60px;">
         <button onclick="showSayAnything()" class="say-anything-btn">💬 Say Anything</button>
         <button onclick="toggleMore()" id="moreBtn" style="width: 100%; padding: 16px; background: #ede9fe; border: 2px solid #ddd6fe; border-radius: 14px; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 12px; color: #5b3fa0;">
             ➕ More Options
@@ -1559,18 +1559,24 @@
             ],
         };
 
+        // Elements to hide in Caregiver Mode and restore in Patient Mode
+        const PATIENT_IDS = ['buttons','secondaryButtons','facilitySection','customSection','aiChips','moreBtn','facilityButtons','controlsRow'];
+
         function toggleCaregiverMode() {
             caregiverModeActive = !caregiverModeActive;
-            const btn = document.getElementById('modeToggleBtn');
+            const btn   = document.getElementById('modeToggleBtn');
             const cgDiv = document.getElementById('caregiverMode');
-            const patientContent = document.querySelectorAll('#buttons, #secondaryButtons, #facilitySection, #customSection, #aiChips, .say-anything-btn, #moreBtn, #facilityButtons');
 
             if (caregiverModeActive) {
                 btn.textContent = '💙 Patient Mode';
                 btn.classList.add('caregiver-active');
                 cgDiv.style.display = 'block';
-                patientContent.forEach(el => { el.style.display = 'none'; });
-                document.querySelector('div[style*="margin-bottom: 60px"]') && (document.querySelector('div[style*="margin-bottom: 60px"]').style.display = 'none');
+                PATIENT_IDS.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = 'none';
+                });
+                // also hide the say-anything button (it's a class, not an id)
+                document.querySelectorAll('.say-anything-btn').forEach(el => el.style.display = 'none');
                 setCgCat('needs', document.querySelector('.cg-cat'));
                 speak("Caregiver mode is on. Tap a question to ask the patient.");
             } else {
@@ -1578,9 +1584,11 @@
                 btn.classList.remove('caregiver-active');
                 cgDiv.style.display = 'none';
                 document.getElementById('yesNoOverlay').classList.remove('show');
-                patientContent.forEach(el => { el.style.display = ''; });
-                const controls = document.querySelector('div[style*="margin-bottom: 60px"]');
-                if (controls) controls.style.display = '';
+                PATIENT_IDS.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = '';
+                });
+                document.querySelectorAll('.say-anything-btn').forEach(el => el.style.display = '');
                 speak("Patient mode is on. Tap any button to speak.");
             }
         }
