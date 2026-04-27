@@ -43,8 +43,14 @@ ALTER TABLE button_sets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE devices     ENABLE ROW LEVEL SECURITY;
 
 -- Allow full access via the anon key (access is controlled at app level by facility_code + PIN)
+-- DROP first so re-running never collides (PostgreSQL has no CREATE POLICY IF NOT EXISTS)
+DROP POLICY IF EXISTS "anon_all_facilities"  ON facilities;
 CREATE POLICY "anon_all_facilities"  ON facilities  FOR ALL TO anon USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "anon_all_button_sets" ON button_sets;
 CREATE POLICY "anon_all_button_sets" ON button_sets FOR ALL TO anon USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "anon_all_devices"     ON devices;
 CREATE POLICY "anon_all_devices"     ON devices     FOR ALL TO anon USING (true) WITH CHECK (true);
 
 -- ── Trigger: auto-update updated_at on button_sets ──────────
@@ -56,6 +62,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- DROP first so re-running the script never collides
+DROP TRIGGER IF EXISTS button_sets_updated_at ON button_sets;
 CREATE TRIGGER button_sets_updated_at
   BEFORE UPDATE ON button_sets
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
