@@ -4,7 +4,7 @@
    Caches all app files for full offline operation.
    ============================================================ */
 
-const CACHE_NAME = 'vonnie-v2';
+const CACHE_NAME = 'vonnie-v3';
 const ASSETS = [
     './',
     './index.html',

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#4a90d9">
+    <meta name="theme-color" content="#6d28d9">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="description" content="VONNIE - Voice Output Neural Navigator Interface Environment. Always here for you.">
     <link rel="manifest" href="manifest.json">
@@ -14,18 +14,18 @@
         #screenshotToast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 500; opacity: 0; transition: opacity 0.4s; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.3); max-width: 90vw; white-space: normal; text-align: center; }
         #screenshotToast.show { opacity: 1; }
         /* ── Install Banner ── */
-        #installBanner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 300; background: #1e40af; color: white; padding: 14px 16px; box-shadow: 0 -4px 16px rgba(0,0,0,0.25); display: none; flex-direction: column; gap: 10px; }
+        #installBanner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 300; background: linear-gradient(135deg, #3b1f6e, #5b3fa0); color: white; padding: 14px 16px; box-shadow: 0 -4px 16px rgba(45,26,78,0.4); display: none; flex-direction: column; gap: 10px; }
         #installBanner.show { display: flex; }
         .install-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
         .install-title { font-size: 15px; font-weight: 700; }
         .install-sub { font-size: 13px; opacity: 0.85; }
         .install-steps { font-size: 13px; background: rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 12px; line-height: 1.8; }
-        .install-btn { background: white; color: #1e40af; border: none; border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .install-btn { background: white; color: #5b3fa0; border: none; border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
         .install-dismiss { background: none; border: none; color: white; font-size: 22px; cursor: pointer; line-height: 1; opacity: 0.7; flex-shrink: 0; padding: 4px; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; overscroll-behavior: none; }
-        .dark body { background: #111827; }
-        .dark { background: #111827; color: white; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f0ff; overscroll-behavior: none; }
+        .dark body { background: #0f0a1e; }
+        .dark { background: #0f0a1e; color: white; }
         .btn {
             border: none;
             border-radius: 18px;
@@ -68,8 +68,8 @@
         .icon svg { width: 100%; height: 100%; display: block; }
         .label { font-size: 12px; font-weight: 600; text-align: center; line-height: 1.25; pointer-events: none; color: #1e293b; letter-spacing: 0.01em; }
         .dark .label { color: #e2e8f0; }
-        .header { background: white; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
-        .dark .header { background: #1f2937; color: white; }
+        .header { background: linear-gradient(135deg, #2d1a4e 0%, #5b3fa0 100%); padding: 16px; box-shadow: 0 4px 16px rgba(45,26,78,0.25); position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .dark .header { background: linear-gradient(135deg, #1a0f30 0%, #3b1f6e 100%); }
         .speaking { animation: pulse 1.5s infinite; background: #4ade80 !important; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 200; }
@@ -86,24 +86,24 @@
         .welcome { position: fixed; inset: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; z-index: 300; color: white; text-align: center; transition: opacity 0.8s ease; }
         .hidden { display: none !important; }
         .toggle-switch { width: 50px; height: 28px; background: #ccc; border-radius: 14px; position: relative; cursor: pointer; transition: background 0.3s; flex-shrink: 0; }
-        .toggle-switch.active { background: #4ade80; }
+        .toggle-switch.active { background: #7c3aed; }
         .toggle-switch::after { content: ''; position: absolute; width: 24px; height: 24px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: transform 0.3s; }
         .toggle-switch.active::after { transform: translateX(22px); }
-        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e5e7eb; padding: 12px; text-align: center; font-size: 12px; color: #6b7280; }
-        .dark .footer { background: #1f2937; border-color: #374151; color: #9ca3af; }
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, #2d1a4e, #5b3fa0); border-top: none; padding: 12px; text-align: center; font-size: 12px; color: #c4b5fd; font-style: italic; }
+        .dark .footer { background: linear-gradient(135deg, #1a0f30, #3b1f6e); color: #a78bfa; }
         .secondary-grid { display: none; }
         .secondary-grid.visible { display: grid; }
 
         /* ---- AI Chips ---- */
         #aiChips { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 16px 12px; max-width: 800px; margin: 0 auto; }
         .chips-label { font-size: 13px; color: #6b7280; font-weight: 600; width: 100%; margin-bottom: 2px; }
-        .ai-chip { background: #eff6ff; border: 2px solid #3b82f6; border-radius: 24px; padding: 10px 18px; font-size: 15px; font-weight: 600; color: #1d4ed8; cursor: pointer; transition: all 0.1s; user-select: none; -webkit-user-select: none; }
-        .ai-chip:active, .ai-chip.chip-pressed { background: #3b82f6; color: white; transform: scale(0.95); }
-        .dark .ai-chip { background: #1e3a5f; border-color: #60a5fa; color: #93c5fd; }
-        .dark .ai-chip:active, .dark .ai-chip.chip-pressed { background: #3b82f6; color: white; }
+        .ai-chip { background: #f5f0ff; border: 2px solid #7c3aed; border-radius: 24px; padding: 10px 18px; font-size: 15px; font-weight: 600; color: #5b3fa0; cursor: pointer; transition: all 0.1s; user-select: none; -webkit-user-select: none; }
+        .ai-chip:active, .ai-chip.chip-pressed { background: #7c3aed; color: white; transform: scale(0.95); }
+        .dark .ai-chip { background: #2d1a4e; border-color: #a78bfa; color: #c4b5fd; }
+        .dark .ai-chip:active, .dark .ai-chip.chip-pressed { background: #7c3aed; color: white; }
 
         /* ---- Say Anything button ---- */
-        .say-anything-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 12px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 12px; transition: filter 0.1s; }
+        .say-anything-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #3b1f6e 0%, #7c3aed 100%); border: none; border-radius: 14px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 12px; transition: filter 0.1s; box-shadow: 0 4px 16px rgba(124,58,237,0.35); }
         .say-anything-btn:active { filter: brightness(0.88); }
 
         /* ---- AI status badge ---- */
@@ -111,7 +111,7 @@
 
         /* ---- AI loading spinner ---- */
         @keyframes spin { to { transform: rotate(360deg); } }
-        .ai-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #d1d5db; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+        .ai-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #ddd6fe; border-top-color: #7c3aed; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
 
         /* ---- Say Anything modal extras ---- */
         #sayAnythingInput { width: 100%; padding: 14px; font-size: 18px; border: 2px solid #d1d5db; border-radius: 10px; margin: 12px 0; resize: none; font-family: inherit; }
@@ -194,14 +194,14 @@
     <!-- HEADER -->
     <div class="header">
         <div style="display: flex; align-items: center; gap: 12px;">
-            <div id="statusOrb" style="width: 44px; height: 44px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; transition: background 0.3s;">V</div>
+            <div id="statusOrb" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; transition: background 0.3s;">💜</div>
             <div>
-                <div style="font-weight: bold; font-size: 18px;">V.O.N.N.I.E.</div>
-                <div id="connectionStatus" style="font-size: 12px; color: #6b7280;">Ready</div>
-                <div id="aiStatus">🤖 AI Ready</div>
+                <div style="font-weight: bold; font-size: 18px; color: white; letter-spacing: 0.03em;">V.O.N.N.I.E.</div>
+                <div id="connectionStatus" style="font-size: 12px; color: #c4b5fd;">Always here for you</div>
+                <div id="aiStatus" style="font-size: 11px; color: #a78bfa;">🤖 AI Ready</div>
             </div>
         </div>
-        <button onclick="showSettings()" style="font-size: 24px; background: none; border: none; cursor: pointer; padding: 8px;" aria-label="Settings">⚙️</button>
+        <button onclick="showSettings()" style="font-size: 24px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; cursor: pointer; padding: 8px; color: white;" aria-label="Settings">⚙️</button>
     </div>
 
     <!-- PRIMARY BUTTONS -->
@@ -228,12 +228,12 @@
     <!-- CONTROLS -->
     <div style="padding: 16px; max-width: 800px; margin: 0 auto; margin-bottom: 60px;">
         <button onclick="showSayAnything()" class="say-anything-btn">💬 Say Anything</button>
-        <button onclick="toggleMore()" id="moreBtn" style="width: 100%; padding: 16px; background: #e5e7eb; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 12px;">
+        <button onclick="toggleMore()" id="moreBtn" style="width: 100%; padding: 16px; background: #ede9fe; border: 2px solid #ddd6fe; border-radius: 14px; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 12px; color: #5b3fa0;">
             ➕ More Options
         </button>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <button onclick="stopSpeaking()" style="padding: 16px; background: #fee2e2; border: 2px solid #ef4444; border-radius: 12px; color: #dc2626; font-weight: bold; cursor: pointer; font-size: 16px;">⏹️ STOP</button>
-            <button onclick="repeatLast()" style="padding: 16px; background: #dbeafe; border: 2px solid #3b82f6; border-radius: 12px; color: #2563eb; font-weight: bold; cursor: pointer; font-size: 16px;">🔁 REPEAT</button>
+            <button onclick="stopSpeaking()" style="padding: 16px; background: #fee2e2; border: 2px solid #ef4444; border-radius: 14px; color: #dc2626; font-weight: bold; cursor: pointer; font-size: 16px; box-shadow: 0 2px 8px rgba(239,68,68,0.2);">⏹️ STOP</button>
+            <button onclick="repeatLast()" style="padding: 16px; background: #f5f0ff; border: 2px solid #7c3aed; border-radius: 14px; color: #5b3fa0; font-weight: bold; cursor: pointer; font-size: 16px; box-shadow: 0 2px 8px rgba(124,58,237,0.2);">🔁 REPEAT</button>
         </div>
     </div>
 
@@ -1020,16 +1020,16 @@
             const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
             const day = days[new Date().getDay()];
             const part = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
-            const prompt = `You are V.O.N.N.I.E., a caring communication device that speaks on behalf of people who cannot speak. Generate one warm spoken greeting to open the app. It is ${part} on ${day}. Start with "Good ${part}." Then briefly introduce yourself as V.O.N.N.I.E. and invite the user to tell you what they need. Two sentences maximum. Warm, gentle, and reassuring.`;
+            const prompt = `You are Vonnie, a warm and caring communication companion that speaks on behalf of people who cannot speak. Generate one spoken greeting to open the app. It is ${part} on ${day}. Start with "Good ${part}." Then introduce yourself as Vonnie and warmly invite the user to tell you what they need. Two sentences maximum. Use the name Vonnie — never spell it as V.O.N.N.I.E. Warm, gentle, and reassuring.`;
             const result = await callAI(prompt, VONNIE_SYSTEM);
             return result || defaultGreeting();
         }
 
         function defaultGreeting() {
             const h = new Date().getHours();
-            if (h < 12) return "Good morning. I'm V.O.N.N.I.E., your communication companion — I'm here and ready to speak for you.";
-            if (h < 17) return "Good afternoon. I'm V.O.N.N.I.E., your communication device — tap any button and I'll give you your voice.";
-            return "Good evening. I'm V.O.N.N.I.E., your communication companion — I'm right here. Tell me what you need.";
+            if (h < 12) return "Good morning. I'm Vonnie, your communication companion — I'm here and ready to speak for you.";
+            if (h < 17) return "Good afternoon. I'm Vonnie, your communication companion — tap any button and I'll give you your voice.";
+            return "Good evening. I'm Vonnie, your communication companion — I'm right here whenever you need me.";
         }
 
         /* ---- FOLLOW-UP CHIPS ---- */
