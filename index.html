@@ -10,6 +10,15 @@
     <title>V.O.N.N.I.E.</title>
 
     <style>
+        /* ── Install Banner ── */
+        #installBanner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 300; background: #1e40af; color: white; padding: 14px 16px; box-shadow: 0 -4px 16px rgba(0,0,0,0.25); display: none; flex-direction: column; gap: 10px; }
+        #installBanner.show { display: flex; }
+        .install-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .install-title { font-size: 15px; font-weight: 700; }
+        .install-sub { font-size: 13px; opacity: 0.85; }
+        .install-steps { font-size: 13px; background: rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 12px; line-height: 1.8; }
+        .install-btn { background: white; color: #1e40af; border: none; border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .install-dismiss { background: none; border: none; color: white; font-size: 22px; cursor: pointer; line-height: 1; opacity: 0.7; flex-shrink: 0; padding: 4px; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; overscroll-behavior: none; }
         .dark body { background: #111827; }
@@ -189,6 +198,19 @@
     <!-- FOOTER -->
     <div class="footer">
         V.O.N.N.I.E. — Voice Output Neural Navigator Interface Environment &nbsp;|&nbsp; "Always here for you"
+    </div>
+
+    <!-- INSTALL BANNER -->
+    <div id="installBanner">
+        <div class="install-row">
+            <div>
+                <div class="install-title">📲 Install V.O.N.N.I.E. on this device</div>
+                <div class="install-sub" id="installSub">Save it as an app so it's always one tap away.</div>
+            </div>
+            <button class="install-dismiss" onclick="dismissInstall()" aria-label="Dismiss">×</button>
+        </div>
+        <div class="install-steps" id="installSteps" style="display:none;"></div>
+        <button class="install-btn" id="installBtn" onclick="triggerInstall()">Install Now</button>
     </div>
 
     <!-- SETTINGS MODAL -->
@@ -1210,6 +1232,86 @@
            START
         ============================ */
         window.addEventListener('load', init);
+
+        /* ============================
+           INSTALL BANNER
+        ============================ */
+        let _deferredInstallPrompt = null;
+
+        // Capture Chrome/Edge/Android native install prompt
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            _deferredInstallPrompt = e;
+            showInstallBanner('chrome');
+        });
+
+        // Hide banner once installed
+        window.addEventListener('appinstalled', () => {
+            document.getElementById('installBanner').classList.remove('show');
+            localStorage.setItem('vonnie_installed', '1');
+        });
+
+        function isStandalone() {
+            return window.matchMedia('(display-mode: standalone)').matches
+                || window.navigator.standalone === true;
+        }
+
+        function isIOS() {
+            return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+        }
+
+        function showInstallBanner(mode) {
+            // Don't show if already installed or permanently dismissed
+            if (isStandalone()) return;
+            if (localStorage.getItem('vonnie_install_dismissed') === '1') return;
+            if (localStorage.getItem('vonnie_installed') === '1') return;
+
+            const banner = document.getElementById('installBanner');
+            const steps  = document.getElementById('installSteps');
+            const btn    = document.getElementById('installBtn');
+            const sub    = document.getElementById('installSub');
+
+            if (mode === 'ios') {
+                sub.textContent = 'Add to your Home Screen so it\'s always one tap away — even offline.';
+                steps.innerHTML =
+                    '1. Tap the <strong>Share</strong> button (&nbsp;⎙&nbsp;) at the bottom of Safari<br>' +
+                    '2. Scroll down and tap <strong>Add to Home Screen</strong><br>' +
+                    '3. Tap <strong>Add</strong> — done! Open from your home screen.';
+                steps.style.display = 'block';
+                btn.style.display = 'none';
+            } else {
+                // Chrome / Edge / Android — native prompt available
+                sub.textContent = 'Install as an app for instant access and full offline use.';
+                steps.style.display = 'none';
+                btn.style.display = 'block';
+                btn.textContent = '📲 Install Now';
+            }
+
+            banner.classList.add('show');
+        }
+
+        function triggerInstall() {
+            if (_deferredInstallPrompt) {
+                _deferredInstallPrompt.prompt();
+                _deferredInstallPrompt.userChoice.then(choice => {
+                    if (choice.outcome === 'accepted') {
+                        localStorage.setItem('vonnie_installed', '1');
+                    }
+                    _deferredInstallPrompt = null;
+                    document.getElementById('installBanner').classList.remove('show');
+                });
+            }
+        }
+
+        function dismissInstall() {
+            document.getElementById('installBanner').classList.remove('show');
+            localStorage.setItem('vonnie_install_dismissed', '1');
+        }
+
+        // iOS: show banner after short delay (no beforeinstallprompt on Safari)
+        if (isIOS() && !isStandalone()) {
+            setTimeout(() => showInstallBanner('ios'), 2000);
+        }
     </script>
 </body>
 </html>
