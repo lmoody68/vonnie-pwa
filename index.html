@@ -26,9 +26,42 @@
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; overscroll-behavior: none; }
         .dark body { background: #111827; }
         .dark { background: #111827; color: white; }
-        .btn { border: 1px solid rgba(0,0,0,0.1); border-top: 5px solid #3b82f6; border-radius: 10px; height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background: white; box-shadow: 0 1px 4px rgba(0,0,0,0.07); transition: transform 0.08s, filter 0.08s, box-shadow 0.08s; user-select: none; -webkit-user-select: none; padding: 8px 4px; }
-        .btn:active, .btn.pressed { transform: scale(0.96); filter: brightness(0.91); box-shadow: inset 0 1px 4px rgba(0,0,0,0.14); }
-        .dark .btn { background: #1e293b; color: white; border-color: rgba(255,255,255,0.1); }
+        .btn {
+            border: none;
+            border-radius: 18px;
+            height: 120px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer;
+            background: linear-gradient(155deg, #ffffff 0%, #eef2ff 100%);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            user-select: none; -webkit-user-select: none;
+            padding: 10px 6px 8px;
+            position: relative; overflow: hidden;
+        }
+        .btn::after {
+            content: '';
+            position: absolute; bottom: 0; left: 12%; right: 12%; height: 3px;
+            border-radius: 3px 3px 0 0;
+            background: var(--btn-accent, #3b82f6);
+            opacity: 0.7;
+        }
+        .btn::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 18px 18px 0 0;
+            pointer-events: none;
+        }
+        .btn:active, .btn.pressed {
+            transform: scale(0.94);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.10), inset 0 2px 8px rgba(0,0,0,0.09);
+        }
+        .dark .btn {
+            background: linear-gradient(155deg, #1e293b 0%, #0f172a 100%);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+        .dark .btn::before { background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 100%); }
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 14px; max-width: 860px; margin: 0 auto; }
         #buttons { grid-template-columns: repeat(4, 1fr); }
         .icon { width: 46px; height: 46px; margin: 0 auto 5px; pointer-events: none; display: flex; align-items: center; justify-content: center; font-size: 36px; flex-shrink: 0; }
@@ -95,7 +128,7 @@
             #statusOrb { width: 34px; height: 34px; font-size: 16px; }
             .grid { gap: 6px; padding: 6px 10px; }
             #buttons { grid-template-columns: repeat(4, 1fr); }
-            .btn { height: 80px; border-radius: 8px; border-top-width: 3px; padding: 4px 2px; }
+            .btn { height: 80px; border-radius: 12px; padding: 4px 2px; }
             .icon { width: 34px; height: 34px; margin-bottom: 2px; }
             .label { font-size: 10px; }
             #aiChips { padding: 2px 12px 8px; gap: 6px; }
@@ -143,7 +176,7 @@
         .dark #btnPreview { background: #1e293b !important; border-color: #4b5563 !important; }
         .dark #previewLabel { color: #e2e8f0 !important; }
         #customButtons { margin-top: 4px; }
-        #customButtons .btn { border-top-color: #7c3aed; }
+        #customButtons .btn { --btn-accent: #7c3aed; }
         .custom-section-label { text-align: center; font-size: 12px; font-weight: 600; color: #7c3aed; letter-spacing: 0.05em; padding: 6px 0 0; }
     </style>
 </head>
@@ -549,8 +582,11 @@
                 const el = document.createElement('div');
                 el.className = 'btn';
                 el.id = 'btn_' + btn.id;
-                el.style.background = btn.color || '#f8fafc';
-                if (btn.accent) el.style.borderTopColor = btn.accent;
+                const bg     = btn.color || '#eef2ff';
+                const accent = btn.accent || '#3b82f6';
+                el.style.background = `linear-gradient(155deg, ${bg} 0%, ${bg}cc 100%)`;
+                el.style.setProperty('--btn-accent', accent);
+                el.style.boxShadow = `0 4px 16px ${accent}28, 0 1px 3px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.85)`;
                 el.setAttribute('role', 'button');
                 el.setAttribute('tabindex', '0');
                 el.setAttribute('aria-label', btn.label);

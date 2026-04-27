@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V.O.N.N.I.E. — Give Everyone a Voice</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f0f4ff;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .flier {
+    width: 700px;
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+  }
+
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #1d4ed8 100%);
+    padding: 52px 48px 44px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%);
+  }
+
+  .hero-tag {
+    display: inline-block;
+    background: rgba(99,102,241,0.25);
+    border: 1px solid rgba(99,102,241,0.4);
+    color: #a5b4fc;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+
+  .hero-title {
+    font-size: 52px;
+    font-weight: 900;
+    color: white;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .hero-title span { color: #60a5fa; }
+
+  .hero-full {
+    font-size: 12px;
+    color: #94a3b8;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .hero-tagline {
+    font-size: 22px;
+    font-weight: 300;
+    color: #e2e8f0;
+    font-style: italic;
+    margin-bottom: 28px;
+  }
+
+  .hero-desc {
+    font-size: 15px;
+    color: #94a3b8;
+    line-height: 1.7;
+    max-width: 520px;
+  }
+  .hero-desc strong { color: #e2e8f0; font-weight: 600; }
+
+  /* ── Stats bar ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: linear-gradient(90deg, #1e40af, #4f46e5);
+    padding: 20px 48px;
+    gap: 0;
+  }
+  .stat { text-align: center; padding: 0 16px; }
+  .stat + .stat { border-left: 1px solid rgba(255,255,255,0.15); }
+  .stat-num { font-size: 28px; font-weight: 800; color: white; }
+  .stat-label { font-size: 12px; color: #bfdbfe; font-weight: 500; margin-top: 2px; }
+
+  /* ── Body ── */
+  .body { padding: 44px 48px; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6366f1;
+    margin-bottom: 16px;
+  }
+
+  /* ── Problem statement ── */
+  .problem {
+    background: linear-gradient(135deg, #fef3c7, #fffbeb);
+    border: 1px solid #fde68a;
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 36px;
+    font-size: 15px;
+    color: #78350f;
+    line-height: 1.7;
+  }
+  .problem strong { color: #92400e; }
+
+  /* ── Features grid ── */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+  .feature {
+    background: #f8faff;
+    border: 1px solid #e0e7ff;
+    border-radius: 14px;
+    padding: 20px 18px;
+    text-align: center;
+  }
+  .feature-icon { font-size: 28px; margin-bottom: 10px; }
+  .feature-title { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+  .feature-desc { font-size: 12px; color: #64748b; line-height: 1.6; }
+
+  /* ── Who it's for ── */
+  .audiences {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+  .audience {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #f8faff;
+    border-radius: 12px;
+    border: 1px solid #e0e7ff;
+  }
+  .audience-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+  .audience-title { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 3px; }
+  .audience-desc { font-size: 12px; color: #64748b; line-height: 1.5; }
+
+  /* ── Pricing ── */
+  .pricing {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 40px;
+  }
+  .plan {
+    border-radius: 16px;
+    padding: 20px 16px;
+    text-align: center;
+    border: 2px solid #e0e7ff;
+    background: white;
+  }
+  .plan.featured {
+    background: linear-gradient(135deg, #1e40af, #4f46e5);
+    border-color: transparent;
+    color: white;
+  }
+  .plan-name { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .plan.featured .plan-name { color: #bfdbfe; }
+  .plan-price { font-size: 26px; font-weight: 900; color: #1e293b; line-height: 1; }
+  .plan.featured .plan-price { color: white; }
+  .plan-period { font-size: 11px; color: #94a3b8; margin-bottom: 12px; font-weight: 500; }
+  .plan.featured .plan-period { color: #93c5fd; }
+  .plan-features { list-style: none; font-size: 11.5px; color: #475569; line-height: 2; text-align: left; }
+  .plan.featured .plan-features { color: #bfdbfe; }
+  .plan-features li::before { content: '✓  '; font-weight: 700; color: #6366f1; }
+  .plan.featured .plan-features li::before { color: #93c5fd; }
+
+  /* ── CTA + QR ── */
+  .cta-section {
+    background: linear-gradient(135deg, #0f172a, #1e3a5f);
+    border-radius: 18px;
+    padding: 32px 36px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: center;
+  }
+  .cta-title { font-size: 22px; font-weight: 800; color: white; margin-bottom: 10px; }
+  .cta-sub { font-size: 14px; color: #94a3b8; line-height: 1.6; margin-bottom: 18px; }
+  .cta-url {
+    display: inline-block;
+    background: rgba(99,102,241,0.2);
+    border: 1px solid rgba(99,102,241,0.4);
+    color: #a5b4fc;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: monospace;
+    letter-spacing: 0.02em;
+  }
+  .qr-box {
+    background: white;
+    border-radius: 16px;
+    padding: 12px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .qr-box img {
+    width: 130px;
+    height: 130px;
+    display: block;
+    border-radius: 6px;
+  }
+  .qr-label {
+    font-size: 10px;
+    color: #64748b;
+    margin-top: 8px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ── Footer ── */
+  .flier-footer {
+    padding: 20px 48px;
+    border-top: 1px solid #e0e7ff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #94a3b8;
+  }
+  .flier-footer strong { color: #475569; }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .flier { box-shadow: none; border-radius: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="flier">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Assistive Communication Technology</div>
+    <div class="hero-title">V.O.N.N.I.E.<span>.</span></div>
+    <div class="hero-full">Voice Output Neural Navigator Interface Environment</div>
+    <div class="hero-tagline">"Always here for you"</div>
+    <div class="hero-desc">
+      A <strong>professional-grade AAC tool</strong> that gives a voice to anyone who cannot speak —
+      running on any smartphone, tablet, or browser.
+      No expensive hardware. No app store. Works fully <strong>offline</strong>.
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">$0</div>
+      <div class="stat-label">to get started</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">10–30×</div>
+      <div class="stat-label">cheaper than dedicated AAC devices</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">Any device</div>
+      <div class="stat-label">phone · tablet · browser</div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- PROBLEM -->
+    <div class="problem">
+      <strong>The problem:</strong> Traditional AAC devices (Tobii Dynavox, Proloquo2Go) cost
+      <strong>$4,000–$15,000</strong> and require months of insurance approval. Patients suffer
+      in silence while paperwork is processed. V.O.N.N.I.E. is ready in <strong>10 minutes</strong>
+      on a device you already own.
+    </div>
+
+    <!-- FEATURES -->
+    <div class="section-label">What V.O.N.N.I.E. does</div>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">🔊</div>
+        <div class="feature-title">One-Tap Speech</div>
+        <div class="feature-desc">Large, touch-optimized buttons speak any phrase instantly — no typing required.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">AI-Powered</div>
+        <div class="feature-desc">"Say Anything" mode uses AI to voice thoughts not covered by preset buttons.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">✏️</div>
+        <div class="feature-title">Fully Customizable</div>
+        <div class="feature-desc">Caregivers build a personalized button set for each individual user.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📵</div>
+        <div class="feature-title">Works Offline</div>
+        <div class="feature-desc">Fully functional with no internet. No signal needed at bedside or in facilities.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📞</div>
+        <div class="feature-title">Family Calling</div>
+        <div class="feature-desc">One tap shows a call prompt to reach Mom, a caregiver, or a loved one.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🌙</div>
+        <div class="feature-title">Dark Mode + Accessibility</div>
+        <div class="feature-desc">High contrast, adjustable voice speed, large targets — built for real users.</div>
+      </div>
+    </div>
+
+    <!-- WHO IT'S FOR -->
+    <div class="section-label">Who uses V.O.N.N.I.E.</div>
+    <div class="audiences">
+      <div class="audience">
+        <div class="audience-icon">🏥</div>
+        <div>
+          <div class="audience-title">ICU & Hospital Nurses</div>
+          <div class="audience-desc">Intubated and post-surgical patients communicate needs without whiteboards or letter boards.</div>
+        </div>
+      </div>
+      <div class="audience">
+        <div class="audience-icon">🗣️</div>
+        <div>
+          <div class="audience-title">Speech-Language Pathologists</div>
+          <div class="audience-desc">Deploy a configured AAC tool for patients today — no 6-month procurement wait.</div>
+        </div>
+      </div>
+      <div class="audience">
+        <div class="audience-icon">🏠</div>
+        <div>
+          <div class="audience-title">Family Caregivers</div>
+          <div class="audience-desc">Caring for a loved one with ALS, stroke, TBI, or Parkinson's at home.</div>
+        </div>
+      </div>
+      <div class="audience">
+        <div class="audience-icon">🏫</div>
+        <div>
+          <div class="audience-title">Special Education Teachers</div>
+          <div class="audience-desc">Runs on school Chromebooks and iPads. Classroom license covers 30 students.</div>
+        </div>
+      </div>
+      <div class="audience">
+        <div class="audience-icon">🏡</div>
+        <div>
+          <div class="audience-title">Skilled Nursing Facilities</div>
+          <div class="audience-desc">Residents with dementia, stroke, or Parkinson's communicate needs to staff 24/7.</div>
+        </div>
+      </div>
+      <div class="audience">
+        <div class="audience-icon">💪</div>
+        <div>
+          <div class="audience-title">Rehabilitation Centers</div>
+          <div class="audience-desc">Per-patient licensing for short rehab stays — no $10,000 device for a 3-week recovery.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRICING -->
+    <div class="section-label">Simple, affordable pricing</div>
+    <div class="pricing">
+      <div class="plan">
+        <div class="plan-name">Free</div>
+        <div class="plan-price">$0</div>
+        <div class="plan-period">forever</div>
+        <ul class="plan-features">
+          <li>12 preset buttons</li>
+          <li>Speech synthesis</li>
+          <li>Works offline</li>
+          <li>1 device</li>
+        </ul>
+      </div>
+      <div class="plan featured">
+        <div class="plan-name">Personal / Family</div>
+        <div class="plan-price">$9.99</div>
+        <div class="plan-period">per month · or $79/year</div>
+        <ul class="plan-features">
+          <li>All 24 preset buttons</li>
+          <li>Unlimited custom buttons</li>
+          <li>AI "Say Anything" mode</li>
+          <li>Family call alerts</li>
+          <li>Up to 5 devices</li>
+        </ul>
+      </div>
+      <div class="plan">
+        <div class="plan-name">Facility / Institution</div>
+        <div class="plan-price">$299+</div>
+        <div class="plan-period">per year · volume pricing</div>
+        <ul class="plan-features">
+          <li>Site license</li>
+          <li>Admin dashboard</li>
+          <li>Bulk device mgmt</li>
+          <li>SLA support</li>
+          <li>EHR integration add-on</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- CTA + QR -->
+    <div class="cta-section">
+      <div>
+        <div class="cta-title">Try it free — right now</div>
+        <div class="cta-sub">
+          No app store. No download. No account required.<br>
+          Open on any phone, tablet, or computer and start communicating in minutes.
+          Install it to the home screen for instant one-tap access.
+        </div>
+        <div class="cta-url">vonnie-aac-b2jrq.netlify.app</div>
+      </div>
+      <div class="qr-box">
+        <img
+          src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=https://vonnie-aac-b2jrq.netlify.app&format=png&margin=6&color=0f172a&bgcolor=ffffff"
+          alt="Scan to open V.O.N.N.I.E."
+          loading="eager"
+        />
+        <div class="qr-label">Scan to launch</div>
+      </div>
+    </div>
+
+  </div><!-- /body -->
+
+  <!-- FOOTER -->
+  <div class="flier-footer">
+    <span><strong>V.O.N.N.I.E.</strong> — Communication is a right, not a privilege.</span>
+    <span>Questions? <strong>lesliemoody68@yahoo.com</strong></span>
+  </div>
+
+</div>
+</body>
+</html>

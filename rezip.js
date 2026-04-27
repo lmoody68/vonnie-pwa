@@ -15,6 +15,7 @@ const ENTRIES = [
     'manifest.json',
     'sw.js',
     'speech_test.html',
+    'flier.html',
 ];
 
 // ---- minimal zip builder (no npm deps) ----
