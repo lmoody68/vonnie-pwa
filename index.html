@@ -1586,22 +1586,28 @@
                 document.getElementById('yesNoOverlay').classList.remove('show');
                 PATIENT_IDS.forEach(id => {
                     const el = document.getElementById(id);
-                    if (el) el.style.display = '';
+                    if (el) el.style.removeProperty('display');
                 });
-                document.querySelectorAll('.say-anything-btn').forEach(el => el.style.display = '');
+                document.querySelectorAll('.say-anything-btn').forEach(el => el.style.removeProperty('display'));
                 speak("Patient mode is on. Tap any button to speak.");
             }
         }
 
+        let _currentCgCat = 'needs';
+
         function setCgCat(cat, btn) {
+            _currentCgCat = cat;
             document.querySelectorAll('.cg-cat').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             const grid = document.getElementById('cgQuestions');
-            grid.innerHTML = (CG_QUESTIONS[cat] || []).map(item => `
-                <button class="cg-q-btn" onclick="askCaregiverQuestion(${JSON.stringify(item.q)})">
-                    <span class="cg-q-emoji">${item.emoji}</span>
-                    ${item.q}
-                </button>`).join('');
+            grid.innerHTML = '';
+            (CG_QUESTIONS[cat] || []).forEach((item, i) => {
+                const el = document.createElement('button');
+                el.className = 'cg-q-btn';
+                el.innerHTML = `<span class="cg-q-emoji">${item.emoji}</span>${item.q}`;
+                el.addEventListener('click', () => askCaregiverQuestion(item.q));
+                grid.appendChild(el);
+            });
         }
 
         function askCaregiverQuestion(question) {
