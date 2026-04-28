@@ -1983,6 +1983,48 @@
         // Merge new languages into TRANSLATIONS
         Object.assign(TRANSLATIONS, _newLangs);
 
+        // ── Patch: add cold drink question to all 26 languages ──
+        // Inserted right after the warm drink (🍵) in Basic Needs
+        const _COLD_DRINK = {
+            en:'Would you like something cold to drink?',
+            es:'¿Quieres algo frío para beber?',
+            fr:'Voulez-vous quelque chose de froid à boire?',
+            ar:'هل تريد شيئاً بارداً للشرب؟',
+            zh:'你想喝点凉的吗？',
+            vi:'Bạn có muốn uống gì đó lạnh không?',
+            ht:'Eske ou vle yon bagay frèt pou bwè?',
+            pt:'Você quer algo gelado para beber?',
+            tl:'Gusto mo bang mainom na malamig?',
+            ko:'차가운 음료 드시겠어요?',
+            hi:'क्या आप कुछ ठंडा पीना चाहते हैं?',
+            ru:'Вы хотите что-нибудь холодное выпить?',
+            ja:'冷たい飲み物はいかがですか？',
+            de:'Möchten Sie etwas Kaltes trinken?',
+            it:'Vuole qualcosa di freddo da bere?',
+            pl:'Czy chcesz coś zimnego do picia?',
+            uk:'Ви хочете щось холодне випити?',
+            yue:'你想飲啲凍嘢嗎？',
+            so:'Ma wax qabow oo aad cabto rabtaa?',
+            fa:'آیا چیز سردی می‌خواهید بنوشید؟',
+            pa:'ਕੀ ਤੁਸੀਂ ਕੁਝ ਠੰਡਾ ਪੀਣਾ ਚਾਹੁੰਦੇ ਹੋ?',
+            am:'ቀዝቃዛ ነገር ለመጠጣት ትፈልጋለህ?',
+            bn:'আপনি কি ঠান্ডা কিছু পান করতে চান?',
+            my:'အေးသောအချိုရည် သောက်ချင်သလား?',
+            sw:'Unataka kitu baridi cha kunywa?',
+            ne:'के तपाईं केही चिसो पिउन चाहनुहुन्छ?',
+        };
+        Object.keys(TRANSLATIONS).forEach(lang => {
+            const needs = TRANSLATIONS[lang]?.caregiver?.needs;
+            if (!needs) return;
+            const warmIdx = needs.findIndex(q => q.emoji === '🍵');
+            if (warmIdx !== -1 && !needs.some(q => q.emoji === '🧊')) {
+                needs.splice(warmIdx + 1, 0, {
+                    emoji: '🧊',
+                    q: _COLD_DRINK[lang] || _COLD_DRINK.en
+                });
+            }
+        });
+
         let currentLang = localStorage.getItem('vonnie_language') || 'en';
 
         function t(path) {
