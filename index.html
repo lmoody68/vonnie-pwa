@@ -10,6 +10,45 @@
     <title>V.O.N.N.I.E.</title>
 
     <style>
+        /* ── Language Selector ── */
+        .lang-selector { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 4px; }
+        .lang-btn { padding:8px 14px; border-radius:20px; border:2px solid #ddd6fe; background:white; font-size:13px; font-weight:700; color:#5b3fa0; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:5px; }
+        .lang-btn.active { background:#5b3fa0; border-color:#5b3fa0; color:white; }
+        .lang-badge { position:fixed; bottom:40px; right:12px; background:#2d1a4e; color:#c4b5fd; font-size:11px; font-weight:700; padding:4px 10px; border-radius:100px; z-index:150; pointer-events:none; }
+
+        /* ── Kids Mode ── */
+        #kidsMode { display:none; }
+        .kids-header-bar { background:linear-gradient(135deg,#ff6b6b,#feca57,#48dbfb,#ff9ff3); padding:10px 16px; text-align:center; font-size:14px; font-weight:800; color:#1a0a00; letter-spacing:0.03em; }
+        #kidsButtons { grid-template-columns:repeat(4,1fr) !important; }
+        .kids-btn { border-radius:22px !important; height:130px !important; font-size:13px !important; font-weight:800 !important; }
+        .kids-btn .label { font-size:13px !important; font-weight:800 !important; }
+        .kids-btn .icon { font-size:40px !important; }
+        .kids-game-tabs { display:flex; gap:8px; padding:10px 14px; background:#fffbeb; border-bottom:2px solid #fde68a; overflow-x:auto; scrollbar-width:none; }
+        .kids-game-tab { padding:9px 18px; border-radius:20px; border:2px solid #fde68a; background:white; font-size:13px; font-weight:700; color:#92400e; cursor:pointer; white-space:nowrap; flex-shrink:0; transition:all 0.15s; }
+        .kids-game-tab.active { background:#f59e0b; border-color:#f59e0b; color:white; }
+        .kids-game-area { padding:20px 14px; max-width:700px; margin:0 auto; text-align:center; }
+        .game-word-display { font-size:80px; margin:10px 0 4px; display:block; line-height:1; }
+        .game-word-text { font-size:32px; font-weight:900; color:#2d1a4e; margin-bottom:16px; display:block; }
+        .game-btn { border:none; border-radius:16px; padding:16px 28px; font-size:16px; font-weight:800; cursor:pointer; margin:6px; transition:all 0.15s; min-width:140px; }
+        .game-btn-primary { background:linear-gradient(135deg,#f59e0b,#d97706); color:white; box-shadow:0 4px 12px rgba(245,158,11,0.35); }
+        .game-btn-primary:active { transform:scale(0.96); }
+        .game-answer-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; max-width:500px; margin:12px auto; }
+        .game-choice { border:3px solid #e5e7eb; background:white; border-radius:16px; padding:16px; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.15s; }
+        .game-choice:active { transform:scale(0.96); }
+        .game-choice.correct { border-color:#22c55e; background:#f0fdf4; color:#15803d; }
+        .game-choice.wrong { border-color:#ef4444; background:#fef2f2; color:#dc2626; }
+        .game-score { font-size:13px; font-weight:700; color:#5b3fa0; background:#f5f0ff; border-radius:8px; padding:6px 14px; display:inline-block; margin-bottom:12px; }
+        @keyframes celebrate { 0%{transform:scale(1)} 30%{transform:scale(1.25) rotate(-5deg)} 60%{transform:scale(1.15) rotate(4deg)} 100%{transform:scale(1)} }
+        .celebrating { animation:celebrate 0.5s ease-out; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+        .shaking { animation:shake 0.35s ease-out; }
+
+        /* ── RTL support (Arabic) ── */
+        html[dir="rtl"] .header { flex-direction:row-reverse; }
+        html[dir="rtl"] .cg-cat-tabs, html[dir="rtl"] .lang-selector, html[dir="rtl"] .kids-game-tabs { flex-direction:row-reverse; }
+        html[dir="rtl"] .btn { direction:rtl; }
+        html[dir="rtl"] #controlsRow { direction:rtl; }
+
         /* ── Trial Banner ── */
         #trialBanner { display:none; align-items:center; justify-content:space-between; gap:12px; padding:11px 18px; font-size:13px; font-weight:600; flex-wrap:wrap; }
         #trialBanner.info    { background:#fef3c7; border-bottom:2px solid #fde68a; color:#78350f; }
@@ -258,8 +297,9 @@
                 <div id="aiStatus" style="font-size: 11px; color: #a78bfa;">🤖 AI Ready</div>
             </div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <div style="display:flex;gap:6px;align-items:center;">
             <button id="modeToggleBtn" class="mode-toggle" onclick="toggleCaregiverMode()">🤝 Caregiver</button>
+            <button id="kidsModeBtn" class="mode-toggle" onclick="toggleKidsMode()" style="background:rgba(255,200,0,0.2);border-color:rgba(255,220,0,0.4);">⭐ Kids</button>
             <button onclick="showSettings()" style="font-size: 24px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; cursor: pointer; padding: 8px; color: white;" aria-label="Settings">⚙️</button>
         </div>
     </div>
@@ -367,6 +407,20 @@
         </div>
     </div>
 
+    <!-- KIDS MODE -->
+    <div id="kidsMode">
+        <div class="kids-header-bar">⭐ V.O.N.N.I.E. Kids — Tap a button or play a speech game!</div>
+        <div class="grid" id="kidsButtons" style="grid-template-columns:repeat(4,1fr);"></div>
+        <div class="kids-game-tabs">
+            <button class="kids-game-tab active" onclick="showKidsGame('repeat',this)">🎤 Repeat After Me</button>
+            <button class="kids-game-tab" onclick="showKidsGame('match',this)">🎯 Word Match</button>
+        </div>
+        <div class="kids-game-area" id="kidsGameArea"></div>
+    </div>
+
+    <!-- LANGUAGE BADGE (shows current language when non-English) -->
+    <div class="lang-badge" id="langBadge" style="display:none;"></div>
+
     <!-- YES / NO OVERLAY -->
     <div id="yesNoOverlay">
         <div class="yn-label">Vonnie is asking...</div>
@@ -442,6 +496,18 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 style="font-size: 24px;">⚙️ Settings</h2>
                 <button onclick="hideSettings()" style="font-size: 28px; background: none; border: none; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+
+            <!-- Language Selector -->
+            <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #e5e7eb;">
+                <div style="font-weight:700;font-size:14px;color:#2d1a4e;margin-bottom:8px;">🌍 Patient Language</div>
+                <div class="lang-selector" id="langSelector">
+                    <button class="lang-btn active" onclick="setLanguage('en')">🇺🇸 English</button>
+                    <button class="lang-btn" onclick="setLanguage('es')">🇪🇸 Español</button>
+                    <button class="lang-btn" onclick="setLanguage('fr')">🇫🇷 Français</button>
+                    <button class="lang-btn" onclick="setLanguage('ar')">🇸🇦 عربي</button>
+                </div>
+                <div style="font-size:11px;color:#9ca3af;margin-top:4px;">Switches all phrases, questions and Vonnie's voice to the patient's language.</div>
             </div>
 
             <div class="row">
@@ -884,7 +950,7 @@
            BUTTON HANDLER
         ============================ */
         function handleButton(btn) {
-            speak(btn.phrase);
+            speak(getPhrase(btn));
 
             // Clear old chips immediately
             document.getElementById('aiChips').classList.add('hidden');
@@ -945,11 +1011,14 @@
             // Any setTimeout wrapper breaks iOS's trusted-gesture requirement and
             // causes silent failures on iPad/iPhone.
             const utter = new SpeechSynthesisUtterance(text);
-            utter.rate   = settings.voiceSpeed  || 0.88;  // slightly slower = warmer
-            utter.pitch  = settings.voicePitch  || 1.08;  // slightly higher = softer
+            utter.rate   = settings.voiceSpeed  || 0.88;
+            utter.pitch  = settings.voicePitch  || 1.08;
             utter.volume = settings.voiceVolume || 1;
+            utter.lang   = getLangTag(currentLang);
 
-            const preferredVoice = getPreferredVoice();
+            // Prefer language-matched voice, fall back to general preferred voice
+            const langVoice = getVoiceForLang(currentLang);
+            const preferredVoice = langVoice || getPreferredVoice();
             if (preferredVoice) utter.voice = preferredVoice;
 
             lastPhrase = text;
@@ -1255,9 +1324,8 @@
 
         function defaultGreeting() {
             const h = new Date().getHours();
-            if (h < 12) return "Good morning. I'm Vonnie, your communication companion — I'm here and ready to speak for you.";
-            if (h < 17) return "Good afternoon. I'm Vonnie, your communication companion — tap any button and I'll give you your voice.";
-            return "Good evening. I'm Vonnie, your communication companion — I'm right here whenever you need me.";
+            const slot = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+            return t(`greeting.${slot}`);
         }
 
         /* ---- FOLLOW-UP CHIPS ---- */
@@ -1633,6 +1701,416 @@
         }
 
         /* ============================
+           MULTILINGUAL SYSTEM
+        ============================ */
+        const LANG_NAMES = { en:'English', es:'Español', fr:'Français', ar:'عربي' };
+        const LANG_VOICE_TAGS = {
+            en:['en-US','en-GB','en-AU'], es:['es-ES','es-MX','es-AR'],
+            fr:['fr-FR','fr-CA'], ar:['ar-SA','ar-AE','ar-EG']
+        };
+
+        const TRANSLATIONS = {
+            en: {
+                greeting: {
+                    morning:"Good morning. I'm Vonnie, your communication companion — I'm here and ready to speak for you.",
+                    afternoon:"Good afternoon. I'm Vonnie, your communication companion — tap any button and I'll give you your voice.",
+                    evening:"Good evening. I'm Vonnie, your communication companion — I'm right here whenever you need me."
+                },
+                buttons: {
+                    restroom:"I need to use the restroom, please",
+                    hungry:"I'm hungry. Can I have something to eat?",
+                    thirsty:"I need something to drink, please",
+                    dressed:"I'd like to get dressed — something comfortable, please",
+                    outside:"I'd like to go outside for a while",
+                    tv:"I would like to watch TV, please",
+                    channel:"Can you change the channel, please?",
+                    hot:"I'm hot. Can we cool down the room?",
+                    cold:"I'm cold. Can we warm up the room?",
+                    mom:"I want to call Mom",
+                    nene:"I want to call my sister NeNe",
+                    grandma:"I want to call Grandma",
+                    yes:"Yes, please",no:"No, thank you",
+                    pain:"I'm in pain. Can you help me?",
+                    medicine:"It's time for my medication, please",
+                    tired:"I'm tired and need to rest for a while",
+                    reposition:"Can you help adjust my position, please?",
+                    love:"I love you",
+                    thanks:"Thank you so much. I really appreciate you",
+                    help:"I need help, please",
+                    music:"I would like to listen to some music",
+                    privacy:"I'd like some privacy, please",
+                    goodday:"I'm having a good day today!"
+                },
+                caregiver: {
+                    needs:[{emoji:'🍽️',q:'Are you hungry?'},{emoji:'💧',q:'Would you like some water?'},{emoji:'🚿',q:'Do you need the bathroom?'},{emoji:'😴',q:'Are you tired and need to rest?'},{emoji:'🍵',q:'Would you like something warm to drink?'},{emoji:'🍦',q:'Would you like a snack?'}],
+                    comfort:[{emoji:'🔄',q:'Do you need to be repositioned?'},{emoji:'🥵',q:'Are you too hot?'},{emoji:'🥶',q:'Are you too cold? Would you like a blanket?'},{emoji:'💡',q:'Is the light bothering you?'},{emoji:'🔇',q:'Is the noise bothering you?'},{emoji:'🛏️',q:'Would you like to lie down?'}],
+                    pain:[{emoji:'😣',q:'Are you in pain right now?'},{emoji:'📈',q:'Is your pain getting worse?'},{emoji:'💊',q:'Do you need your medication?'},{emoji:'🤢',q:'Are you feeling nauseous?'},{emoji:'😮‍💨',q:'Are you having trouble breathing?'},{emoji:'🏥',q:'Do you need a nurse or doctor right now?'}],
+                    feelings:[{emoji:'😊',q:'Are you feeling okay right now?'},{emoji:'😢',q:'Are you feeling sad or upset?'},{emoji:'😰',q:'Are you feeling anxious or worried?'},{emoji:'😔',q:'Are you feeling lonely?'},{emoji:'😤',q:'Is something bothering you?'},{emoji:'❤️',q:'Do you know how much we love you?'}],
+                    social:[{emoji:'📺',q:'Would you like to watch TV?'},{emoji:'🎵',q:'Would you like to listen to music?'},{emoji:'📞',q:'Would you like to call someone?'},{emoji:'📖',q:'Would you like me to read to you?'},{emoji:'🌳',q:"Would you like to go outside or near a window?"},{emoji:'🤫',q:'Would you like some quiet time alone?'}],
+                    custom:[]
+                }
+            },
+            es: {
+                greeting: {
+                    morning:"Buenos días. Soy Vonnie, tu compañera de comunicación — estoy aquí lista para hablar por ti.",
+                    afternoon:"Buenas tardes. Soy Vonnie, tu compañera de comunicación — toca cualquier botón y te daré tu voz.",
+                    evening:"Buenas noches. Soy Vonnie, tu compañera de comunicación — aquí estoy siempre que me necesites."
+                },
+                buttons: {
+                    restroom:"Necesito ir al baño, por favor",
+                    hungry:"Tengo hambre. ¿Puedo comer algo?",
+                    thirsty:"Necesito algo de beber, por favor",
+                    dressed:"Me gustaría vestirme, algo cómodo por favor",
+                    outside:"Me gustaría salir un rato",
+                    tv:"Me gustaría ver la televisión, por favor",
+                    channel:"¿Puede cambiar el canal, por favor?",
+                    hot:"Tengo calor. ¿Podemos enfriar el cuarto?",
+                    cold:"Tengo frío. ¿Podemos calentar el cuarto?",
+                    mom:"Quiero llamar a mamá",
+                    nene:"Quiero llamar a mi hermana",
+                    grandma:"Quiero llamar a la abuela",
+                    yes:"Sí, por favor",no:"No, gracias",
+                    pain:"Tengo dolor. ¿Me puede ayudar?",
+                    medicine:"Es hora de mi medicamento, por favor",
+                    tired:"Estoy cansado y necesito descansar",
+                    reposition:"¿Puede ayudarme a ajustar mi posición?",
+                    love:"Te quiero",
+                    thanks:"Muchas gracias. Te lo agradezco mucho",
+                    help:"Necesito ayuda, por favor",
+                    music:"Me gustaría escuchar música",
+                    privacy:"Me gustaría un poco de privacidad",
+                    goodday:"¡Hoy estoy teniendo un buen día!"
+                },
+                caregiver: {
+                    needs:[{emoji:'🍽️',q:'¿Tienes hambre?'},{emoji:'💧',q:'¿Quieres agua?'},{emoji:'🚿',q:'¿Necesitas ir al baño?'},{emoji:'😴',q:'¿Estás cansado?'},{emoji:'🍵',q:'¿Quieres algo caliente?'},{emoji:'🍦',q:'¿Quieres un bocadillo?'}],
+                    comfort:[{emoji:'🔄',q:'¿Necesitas cambiar de posición?'},{emoji:'🥵',q:'¿Tienes demasiado calor?'},{emoji:'🥶',q:'¿Tienes frío? ¿Quieres una manta?'},{emoji:'💡',q:'¿Te molesta la luz?'},{emoji:'🔇',q:'¿Te molesta el ruido?'},{emoji:'🛏️',q:'¿Quieres acostarte?'}],
+                    pain:[{emoji:'😣',q:'¿Tienes dolor ahora?'},{emoji:'📈',q:'¿Está empeorando el dolor?'},{emoji:'💊',q:'¿Necesitas tu medicamento?'},{emoji:'🤢',q:'¿Tienes náuseas?'},{emoji:'😮‍💨',q:'¿Tienes dificultad para respirar?'},{emoji:'🏥',q:'¿Necesitas una enfermera o médico?'}],
+                    feelings:[{emoji:'😊',q:'¿Te sientes bien ahora?'},{emoji:'😢',q:'¿Te sientes triste?'},{emoji:'😰',q:'¿Estás ansioso o preocupado?'},{emoji:'😔',q:'¿Te sientes solo?'},{emoji:'😤',q:'¿Algo te molesta?'},{emoji:'❤️',q:'¿Sabes cuánto te queremos?'}],
+                    social:[{emoji:'📺',q:'¿Quieres ver la televisión?'},{emoji:'🎵',q:'¿Quieres escuchar música?'},{emoji:'📞',q:'¿Quieres llamar a alguien?'},{emoji:'📖',q:'¿Quieres que te lea algo?'},{emoji:'🌳',q:'¿Quieres salir o ver por la ventana?'},{emoji:'🤫',q:'¿Quieres un rato tranquilo?'}],
+                    custom:[]
+                }
+            },
+            fr: {
+                greeting: {
+                    morning:"Bonjour. Je suis Vonnie, votre compagne de communication — je suis là et prête à parler pour vous.",
+                    afternoon:"Bon après-midi. Je suis Vonnie, votre compagne — appuyez sur n'importe quel bouton et je vous donnerai votre voix.",
+                    evening:"Bonsoir. Je suis Vonnie, votre compagne de communication — je suis là chaque fois que vous avez besoin de moi."
+                },
+                buttons: {
+                    restroom:"J'ai besoin d'aller aux toilettes, s'il vous plaît",
+                    hungry:"J'ai faim. Puis-je manger quelque chose?",
+                    thirsty:"J'ai besoin de boire quelque chose, s'il vous plaît",
+                    dressed:"J'aimerais m'habiller, quelque chose de confortable",
+                    outside:"J'aimerais sortir un moment",
+                    tv:"J'aimerais regarder la télévision, s'il vous plaît",
+                    channel:"Pouvez-vous changer la chaîne, s'il vous plaît?",
+                    hot:"J'ai chaud. Peut-on refroidir la chambre?",
+                    cold:"J'ai froid. Peut-on réchauffer la chambre?",
+                    mom:"Je veux appeler maman",
+                    nene:"Je veux appeler ma sœur",
+                    grandma:"Je veux appeler grand-mère",
+                    yes:"Oui, s'il vous plaît",no:"Non, merci",
+                    pain:"J'ai mal. Pouvez-vous m'aider?",
+                    medicine:"C'est l'heure de mon médicament, s'il vous plaît",
+                    tired:"Je suis fatigué et j'ai besoin de me reposer",
+                    reposition:"Pouvez-vous m'aider à ajuster ma position?",
+                    love:"Je vous aime",
+                    thanks:"Merci beaucoup. Je vous suis très reconnaissant",
+                    help:"J'ai besoin d'aide, s'il vous plaît",
+                    music:"J'aimerais écouter de la musique",
+                    privacy:"J'aimerais un peu d'intimité",
+                    goodday:"Je passe une bonne journée aujourd'hui!"
+                },
+                caregiver: {
+                    needs:[{emoji:'🍽️',q:'Avez-vous faim?'},{emoji:'💧',q:'Voulez-vous de l\'eau?'},{emoji:'🚿',q:'Avez-vous besoin des toilettes?'},{emoji:'😴',q:'Êtes-vous fatigué?'},{emoji:'🍵',q:'Voulez-vous une boisson chaude?'},{emoji:'🍦',q:'Voulez-vous une collation?'}],
+                    comfort:[{emoji:'🔄',q:'Avez-vous besoin de changer de position?'},{emoji:'🥵',q:'Avez-vous trop chaud?'},{emoji:'🥶',q:'Avez-vous froid? Voulez-vous une couverture?'},{emoji:'💡',q:'La lumière vous dérange-t-elle?'},{emoji:'🔇',q:'Le bruit vous dérange-t-il?'},{emoji:'🛏️',q:'Voulez-vous vous allonger?'}],
+                    pain:[{emoji:'😣',q:'Avez-vous mal maintenant?'},{emoji:'📈',q:'La douleur s\'aggrave-t-elle?'},{emoji:'💊',q:'Avez-vous besoin de médicaments?'},{emoji:'🤢',q:'Vous sentez-vous nauséeux?'},{emoji:'😮‍💨',q:'Avez-vous du mal à respirer?'},{emoji:'🏥',q:'Avez-vous besoin d\'une infirmière?'}],
+                    feelings:[{emoji:'😊',q:'Vous sentez-vous bien?'},{emoji:'😢',q:'Vous sentez-vous triste?'},{emoji:'😰',q:'Êtes-vous anxieux?'},{emoji:'😔',q:'Vous sentez-vous seul?'},{emoji:'😤',q:'Quelque chose vous dérange-t-il?'},{emoji:'❤️',q:'Savez-vous combien nous vous aimons?'}],
+                    social:[{emoji:'📺',q:'Voulez-vous regarder la télé?'},{emoji:'🎵',q:'Voulez-vous écouter de la musique?'},{emoji:'📞',q:'Voulez-vous appeler quelqu\'un?'},{emoji:'📖',q:'Voulez-vous que je vous lise?'},{emoji:'🌳',q:'Voulez-vous sortir ou voir par la fenêtre?'},{emoji:'🤫',q:'Voulez-vous du calme?'}],
+                    custom:[]
+                }
+            },
+            ar: {
+                greeting: {
+                    morning:"صباح الخير. أنا فوني، رفيقتك في التواصل — أنا هنا ومستعدة للحديث عنك.",
+                    afternoon:"مساء الخير. أنا فوني — اضغطي على أي زر وسأعطيك صوتك.",
+                    evening:"مساء النور. أنا فوني — أنا هنا دائماً حين تحتاج إليّ."
+                },
+                buttons: {
+                    restroom:"أحتاج إلى الحمام من فضلك",
+                    hungry:"أنا جائع، هل يمكنني الحصول على طعام؟",
+                    thirsty:"أحتاج شيئاً لأشرب من فضلك",
+                    dressed:"أريد ارتداء الملابس من فضلك",
+                    outside:"أريد الخروج قليلاً",
+                    tv:"أريد مشاهدة التلفاز من فضلك",
+                    channel:"هل يمكنك تغيير القناة من فضلك؟",
+                    hot:"أنا حار، هل يمكننا تبريد الغرفة؟",
+                    cold:"أنا بارد، هل يمكننا تدفئة الغرفة؟",
+                    mom:"أريد الاتصال بأمي",
+                    nene:"أريد الاتصال بأختي",
+                    grandma:"أريد الاتصال بجدتي",
+                    yes:"نعم من فضلك",no:"لا شكراً",
+                    pain:"أنا في ألم، هل يمكنك مساعدتي؟",
+                    medicine:"حان وقت دوائي من فضلك",
+                    tired:"أنا متعب وأحتاج للراحة",
+                    reposition:"هل يمكنك مساعدتي لتعديل وضعي؟",
+                    love:"أحبك",
+                    thanks:"شكراً جزيلاً، أقدر مساعدتك كثيراً",
+                    help:"أحتاج مساعدة من فضلك",
+                    music:"أريد الاستماع لموسيقى",
+                    privacy:"أريد بعض الخصوصية من فضلك",
+                    goodday:"أنا أقضي يوماً جيداً اليوم!"
+                },
+                caregiver: {
+                    needs:[{emoji:'🍽️',q:'هل أنت جائع؟'},{emoji:'💧',q:'هل تريد الماء؟'},{emoji:'🚿',q:'هل تحتاج الحمام؟'},{emoji:'😴',q:'هل أنت متعب؟'},{emoji:'🍵',q:'هل تريد مشروباً دافئاً؟'},{emoji:'🍦',q:'هل تريد وجبة خفيفة؟'}],
+                    comfort:[{emoji:'🔄',q:'هل تحتاج تغيير وضعيتك؟'},{emoji:'🥵',q:'هل أنت حار؟'},{emoji:'🥶',q:'هل أنت بارد؟ هل تريد بطانية؟'},{emoji:'💡',q:'هل يزعجك الضوء؟'},{emoji:'🔇',q:'هل يزعجك الضوضاء؟'},{emoji:'🛏️',q:'هل تريد الاستلقاء؟'}],
+                    pain:[{emoji:'😣',q:'هل تشعر بألم الآن؟'},{emoji:'📈',q:'هل الألم يزداد؟'},{emoji:'💊',q:'هل تحتاج دواءك؟'},{emoji:'🤢',q:'هل تشعر بالغثيان؟'},{emoji:'😮‍💨',q:'هل تجد صعوبة في التنفس؟'},{emoji:'🏥',q:'هل تحتاج ممرضة أو طبيباً؟'}],
+                    feelings:[{emoji:'😊',q:'هل تشعر بالتحسن؟'},{emoji:'😢',q:'هل تشعر بالحزن؟'},{emoji:'😰',q:'هل أنت قلق؟'},{emoji:'😔',q:'هل تشعر بالوحدة؟'},{emoji:'😤',q:'هل هناك شيء يزعجك؟'},{emoji:'❤️',q:'هل تعرف كم نحبك؟'}],
+                    social:[{emoji:'📺',q:'هل تريد مشاهدة التلفاز؟'},{emoji:'🎵',q:'هل تريد الاستماع للموسيقى؟'},{emoji:'📞',q:'هل تريد الاتصال بأحد؟'},{emoji:'📖',q:'هل تريد أن أقرأ لك؟'},{emoji:'🌳',q:'هل تريد الخروج أو رؤية النافذة؟'},{emoji:'🤫',q:'هل تريد وقتاً هادئاً؟'}],
+                    custom:[]
+                }
+            }
+        };
+
+        let currentLang = localStorage.getItem('vonnie_language') || 'en';
+
+        function t(path) {
+            const parts = path.split('.');
+            let obj = TRANSLATIONS[currentLang];
+            for (const p of parts) { if (!obj) break; obj = obj[p]; }
+            if (obj !== undefined && obj !== null) return obj;
+            // Fallback to English
+            obj = TRANSLATIONS.en;
+            for (const p of parts) { if (!obj) break; obj = obj[p]; }
+            return obj ?? path;
+        }
+
+        function getCgQuestions(cat) {
+            return TRANSLATIONS[currentLang]?.caregiver?.[cat]
+                || TRANSLATIONS.en.caregiver[cat]
+                || [];
+        }
+
+        function getPhrase(btn) {
+            if (currentLang === 'en') return btn.phrase;
+            return TRANSLATIONS[currentLang]?.buttons?.[btn.id] || btn.phrase;
+        }
+
+        function isFemaleVoice(voice) {
+            const n = voice.name.toLowerCase();
+            const f = ['female','woman','zira','samantha','victoria','karen','moira','joanna','nova','google','alice','sarah','emma','susan','kate','anna','marie','lisa','julie','rachel','amelie','paulina','luciana','monica','laura','salli','kimberly','kendra','ivy','fiona','tessa','layla','laila','salma','amira'];
+            const m = ['male','man','david','mark','george','daniel','james','richard','ricky','paul','diego','jorge','raul','matej','felipe','pedro'];
+            if (m.some(x => n.includes(x))) return false;
+            return f.some(x => n.includes(x));
+        }
+
+        function getVoiceForLang(lang) {
+            const allVoices = window.speechSynthesis?.getVoices() || [];
+            const tags = LANG_VOICE_TAGS[lang] || ['en-US'];
+            for (const tag of tags) {
+                const pre = tag.slice(0,2);
+                const fem = allVoices.find(v => v.lang.startsWith(pre) && isFemaleVoice(v));
+                if (fem) return fem;
+            }
+            for (const tag of tags) {
+                const pre = tag.slice(0,2);
+                const any = allVoices.find(v => v.lang.startsWith(pre));
+                if (any) return any;
+            }
+            return null;
+        }
+
+        function getLangTag(lang) {
+            return (LANG_VOICE_TAGS[lang] || ['en-US'])[0];
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('vonnie_language', lang);
+            // RTL for Arabic
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            // Update lang buttons
+            document.querySelectorAll('.lang-btn').forEach(b => {
+                b.classList.toggle('active', b.textContent.includes(lang === 'en' ? '🇺🇸' : lang === 'es' ? '🇪🇸' : lang === 'fr' ? '🇫🇷' : '🇸🇦'));
+            });
+            // Language badge
+            const badge = document.getElementById('langBadge');
+            if (lang !== 'en' && badge) {
+                badge.textContent = LANG_NAMES[lang];
+                badge.style.display = '';
+            } else if (badge) { badge.style.display = 'none'; }
+            // Re-render buttons and caregiver questions with new language
+            renderButtons(primaryButtons, 'buttons');
+            renderButtons(secondaryButtons, 'secondaryButtons');
+            renderCustomButtons();
+            if (_currentCgCat && caregiverModeActive) {
+                const activeTab = document.querySelector('.cg-cat.active');
+                if (activeTab) setCgCat(_currentCgCat, activeTab);
+            }
+        }
+
+        /* ============================
+           V.O.N.N.I.E. KIDS MODE
+        ============================ */
+        let kidsModeActive = false;
+        let kidsGame = 'repeat';
+        let kidsScore = 0;
+        let kidsWordIdx = 0;
+
+        const KIDS_BUTTONS = [
+            {emoji:'😊',label:'Happy!',   phrase:'I am happy!',              color:'#fef3c7',accent:'#f59e0b'},
+            {emoji:'😢',label:'Sad',      phrase:'I feel sad',               color:'#dbeafe',accent:'#2563eb'},
+            {emoji:'🍕',label:'Hungry',   phrase:'I am hungry',              color:'#fce7f3',accent:'#ec4899'},
+            {emoji:'💧',label:'Thirsty',  phrase:'I am thirsty',             color:'#cffafe',accent:'#0891b2'},
+            {emoji:'🚽',label:'Potty',    phrase:'I need to go potty',       color:'#f3e8ff',accent:'#9333ea'},
+            {emoji:'😴',label:'Sleepy',   phrase:'I am sleepy',              color:'#ede9fe',accent:'#7c3aed'},
+            {emoji:'🤕',label:'Owie!',    phrase:'I have an owie, it hurts', color:'#fee2e2',accent:'#dc2626'},
+            {emoji:'🤗',label:'Hug!',     phrase:'I want a hug please',      color:'#fef3c7',accent:'#d97706'},
+            {emoji:'👋',label:'Hi!',      phrase:'Hi there! Hello!',         color:'#dcfce7',accent:'#16a34a'},
+            {emoji:'❤️',label:'Love You', phrase:'I love you so much',       color:'#ffe4e6',accent:'#e11d48'},
+            {emoji:'🎮',label:'Play',     phrase:'I want to play',           color:'#dbeafe',accent:'#2563eb'},
+            {emoji:'📚',label:'Story',    phrase:'Read me a story please',   color:'#fef9c3',accent:'#ca8a04'},
+            {emoji:'🎵',label:'Music',    phrase:'I want to hear music',     color:'#f0fdf4',accent:'#15803d'},
+            {emoji:'🍪',label:'Snack',    phrase:'I want a snack please',    color:'#fef3c7',accent:'#b45309'},
+            {emoji:'👍',label:'Yes!',     phrase:'Yes!',                     color:'#dcfce7',accent:'#15803d'},
+            {emoji:'👎',label:'No!',      phrase:'No!',                      color:'#fee2e2',accent:'#dc2626'},
+            {emoji:'🤒',label:'Sick',     phrase:'I do not feel well',       color:'#fef9c3',accent:'#d97706'},
+            {emoji:'🤩',label:'Yay!',     phrase:'I am so excited!',         color:'#f0fdf4',accent:'#16a34a'},
+            {emoji:'😤',label:'Mad',      phrase:'I am upset',               color:'#fee2e2',accent:'#9f1239'},
+            {emoji:'🙏',label:'Please',   phrase:'Please',                   color:'#ede9fe',accent:'#7c3aed'},
+        ];
+
+        const KIDS_WORDS = [
+            {emoji:'🐱',word:'Cat'}, {emoji:'🐶',word:'Dog'}, {emoji:'🎈',word:'Ball'},
+            {emoji:'🚗',word:'Car'},  {emoji:'🌞',word:'Sun'}, {emoji:'🌙',word:'Moon'},
+            {emoji:'📚',word:'Book'}, {emoji:'🌳',word:'Tree'},{emoji:'🐟',word:'Fish'},
+            {emoji:'🐦',word:'Bird'}, {emoji:'🎂',word:'Cake'},{emoji:'🥛',word:'Milk'},
+            {emoji:'👟',word:'Shoe'}, {emoji:'🎩',word:'Hat'}, {emoji:'✋',word:'Hand'},
+            {emoji:'👁️',word:'Eye'},  {emoji:'👂',word:'Ear'}, {emoji:'👃',word:'Nose'},
+            {emoji:'👄',word:'Mouth'},{emoji:'⭐',word:'Star'},
+        ];
+
+        function toggleKidsMode() {
+            if (caregiverModeActive) toggleCaregiverMode(); // exit caregiver first
+            kidsModeActive = !kidsModeActive;
+            const btn = document.getElementById('kidsModeBtn');
+            const kidsDiv = document.getElementById('kidsMode');
+
+            if (kidsModeActive) {
+                btn.textContent = '💙 Patient Mode';
+                btn.style.background = 'rgba(255,200,0,0.35)';
+                kidsDiv.style.display = 'block';
+                PATIENT_IDS.forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
+                document.querySelectorAll('.say-anything-btn').forEach(el => el.style.display='none');
+                renderKidsButtons();
+                showKidsGame('repeat', document.querySelector('.kids-game-tab'));
+                speak("Hi! I'm Vonnie. Let's have fun and practice words together!");
+            } else {
+                btn.textContent = '⭐ Kids';
+                btn.style.background = 'rgba(255,200,0,0.2)';
+                kidsDiv.style.display = 'none';
+                PATIENT_IDS.forEach(id => { const el=document.getElementById(id); if(el) el.style.removeProperty('display'); });
+                document.querySelectorAll('.say-anything-btn').forEach(el => el.style.removeProperty('display'));
+                speak("Patient mode is on. Tap any button to speak.");
+            }
+        }
+
+        function renderKidsButtons() {
+            const grid = document.getElementById('kidsButtons');
+            grid.innerHTML = '';
+            KIDS_BUTTONS.forEach(btn => {
+                const el = document.createElement('div');
+                el.className = 'btn kids-btn';
+                el.style.background = `linear-gradient(155deg, ${btn.color} 0%, ${btn.color}cc 100%)`;
+                el.style.setProperty('--btn-accent', btn.accent);
+                el.style.boxShadow = `0 4px 16px ${btn.accent}28, 0 1px 3px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.85)`;
+                el.innerHTML = `<div class="icon" style="font-size:40px;">${btn.emoji}</div><div class="label" style="font-size:13px;font-weight:800;">${btn.label}</div>`;
+                let tf = false;
+                el.addEventListener('touchstart', e => { e.preventDefault(); tf=true; el.classList.add('pressed'); speak(btn.phrase); }, {passive:false});
+                el.addEventListener('touchend', () => el.classList.remove('pressed'));
+                el.addEventListener('click', () => { if(tf){tf=false;return;} speak(btn.phrase); });
+                grid.appendChild(el);
+            });
+        }
+
+        function showKidsGame(game, btn) {
+            kidsGame = game;
+            document.querySelectorAll('.kids-game-tab').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            kidsScore = 0;
+            kidsWordIdx = Math.floor(Math.random() * KIDS_WORDS.length);
+            if (game === 'repeat') renderRepeatGame();
+            else renderMatchGame();
+        }
+
+        function renderRepeatGame() {
+            const word = KIDS_WORDS[kidsWordIdx];
+            document.getElementById('kidsGameArea').innerHTML = `
+                <div class="game-score">⭐ Stars: ${kidsScore}</div>
+                <span class="game-word-display">${word.emoji}</span>
+                <span class="game-word-text">${word.word}</span>
+                <p style="color:#6b7280;font-size:14px;margin-bottom:14px;">Listen, then say the word out loud!</p>
+                <button class="game-btn game-btn-primary" onclick="repeatPlayWord()" style="margin-bottom:10px;">🔊 Hear It Again</button>
+                <br>
+                <button class="game-btn" onclick="repeatGotIt()" style="background:linear-gradient(135deg,#22c55e,#15803d);color:white;box-shadow:0 4px 12px rgba(34,197,94,0.35);">⭐ I Said It!</button>
+            `;
+            speak(word.word);
+        }
+
+        function repeatPlayWord() {
+            speak(KIDS_WORDS[kidsWordIdx].word);
+        }
+
+        function repeatGotIt() {
+            kidsScore++;
+            kidsWordIdx = (kidsWordIdx + 1) % KIDS_WORDS.length;
+            speak("Great job! ⭐");
+            const area = document.getElementById('kidsGameArea');
+            area.classList.add('celebrating');
+            setTimeout(() => { area.classList.remove('celebrating'); renderRepeatGame(); }, 800);
+        }
+
+        function renderMatchGame() {
+            const correct = KIDS_WORDS[kidsWordIdx];
+            // Pick 3 wrong answers
+            let pool = KIDS_WORDS.filter((_, i) => i !== kidsWordIdx);
+            pool = pool.sort(() => Math.random()-0.5).slice(0,3);
+            const choices = [...pool, correct].sort(() => Math.random()-0.5);
+
+            document.getElementById('kidsGameArea').innerHTML = `
+                <div class="game-score">⭐ Score: ${kidsScore}</div>
+                <span class="game-word-display" id="matchEmoji">${correct.emoji}</span>
+                <p style="color:#2d1a4e;font-size:16px;font-weight:700;margin-bottom:14px;">What is this called?</p>
+                <div class="game-answer-grid">
+                    ${choices.map(c => `<button class="game-choice" onclick="checkMatch('${c.word}','${correct.word}',this)">${c.word}</button>`).join('')}
+                </div>
+            `;
+            speak("What is this called?");
+            setTimeout(() => speak(correct.word), 1200);
+        }
+
+        function checkMatch(chosen, correct, el) {
+            if (chosen === correct) {
+                el.classList.add('correct');
+                kidsScore++;
+                speak(`That's right! ${correct}!`);
+                setTimeout(() => {
+                    document.getElementById('kidsGameArea').classList.add('celebrating');
+                    setTimeout(() => {
+                        document.getElementById('kidsGameArea').classList.remove('celebrating');
+                        kidsWordIdx = (kidsWordIdx + 1) % KIDS_WORDS.length;
+                        renderMatchGame();
+                    }, 800);
+                }, 300);
+            } else {
+                el.classList.add('wrong');
+                el.classList.add('shaking');
+                speak(`Try again! Listen — ${correct}.`);
+                setTimeout(() => { el.classList.remove('wrong','shaking'); }, 800);
+            }
+        }
+
+        /* ============================
            TRIAL SYSTEM
         ============================ */
         function getDeviceId() {
@@ -1871,7 +2349,7 @@
                 buildCustomCgGrid();
             } else {
                 const grid = document.getElementById('cgQuestions');
-                grid.innerHTML = (CG_QUESTIONS[cat] || []).map(item =>
+                grid.innerHTML = (getCgQuestions(cat) || []).map(item =>
                     `<button class="cg-q-btn" data-cg-q="${item.q.replace(/"/g,'&quot;')}">
                         <span class="cg-q-emoji">${item.emoji}</span>${item.q}
                     </button>`
@@ -2160,7 +2638,13 @@
         /* ============================
            START
         ============================ */
-        window.addEventListener('load', () => { init(); initFacilityMode(); initTrialSystem(); });
+        window.addEventListener('load', () => {
+            init();
+            initFacilityMode();
+            initTrialSystem();
+            // Apply saved language on load
+            if (currentLang !== 'en') setLanguage(currentLang);
+        });
 
         /* ============================
            INSTALL BANNER
