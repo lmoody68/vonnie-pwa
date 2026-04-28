@@ -300,6 +300,7 @@
         <div style="display:flex;gap:6px;align-items:center;">
             <button id="modeToggleBtn" class="mode-toggle" onclick="toggleCaregiverMode()">🤝 Caregiver</button>
             <button id="kidsModeBtn" class="mode-toggle" onclick="toggleKidsMode()" style="background:rgba(255,200,0,0.2);border-color:rgba(255,220,0,0.4);">⭐ Kids</button>
+            <button id="langHeaderBtn" onclick="showLangPicker()" style="font-size:18px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:10px;cursor:pointer;padding:6px 10px;color:white;line-height:1;" aria-label="Language">🌍</button>
             <button onclick="showSettings()" style="font-size: 24px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; cursor: pointer; padding: 8px; color: white;" aria-label="Settings">⚙️</button>
         </div>
     </div>
@@ -342,6 +343,18 @@
             <div class="lockout-contact" style="margin-top:12px;">
                 <a href="mailto:lesliemoody68@yahoo.com">lesliemoody68@yahoo.com</a>
             </div>
+        </div>
+    </div>
+
+    <!-- LANGUAGE PICKER MODAL -->
+    <div id="langPickerModal" class="modal" onclick="hideLangPicker()">
+        <div class="modal-content" onclick="event.stopPropagation()" style="max-width:480px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h2 style="font-size:20px;color:#2d1a4e;">🌍 Patient Language</h2>
+                <button onclick="hideLangPicker()" style="font-size:26px;background:none;border:none;cursor:pointer;color:#9ca3af;">×</button>
+            </div>
+            <p style="font-size:13px;color:#6b7280;margin-bottom:14px;">Select the patient's language. All buttons, questions, and Vonnie's voice will switch immediately.</p>
+            <div id="langPickerGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
         </div>
     </div>
 
@@ -2022,6 +2035,26 @@
             return (LANG_VOICE_TAGS[lang] || ['en-US'])[0];
         }
 
+        function showLangPicker() {
+            const grid = document.getElementById('langPickerGrid');
+            if (grid) {
+                grid.innerHTML = Object.keys(LANG_NAMES).map(code =>
+                    `<button onclick="setLanguage('${code}');hideLangPicker()"
+                        style="padding:10px 6px;border-radius:12px;border:2px solid ${code===currentLang?'#7c3aed':'#ede9fe'};
+                               background:${code===currentLang?'#f5f0ff':'white'};font-size:13px;font-weight:600;
+                               color:#2d1a4e;cursor:pointer;text-align:center;display:flex;flex-direction:column;
+                               align-items:center;gap:3px;">
+                        <span style="font-size:22px;">${LANG_FLAGS[code]}</span>
+                        <span style="font-size:11px;">${LANG_NAMES[code]}</span>
+                    </button>`
+                ).join('');
+            }
+            document.getElementById('langPickerModal').classList.add('show');
+        }
+        function hideLangPicker() {
+            document.getElementById('langPickerModal').classList.remove('show');
+        }
+
         function buildLangSelector() {
             const sel = document.getElementById('langSelector');
             if (!sel) return;
@@ -2037,6 +2070,9 @@
             document.documentElement.dir = LANG_RTL.includes(lang) ? 'rtl' : 'ltr';
             // Rebuild selector to update active state
             buildLangSelector();
+            // Update header globe button to show current flag
+            const hBtn = document.getElementById('langHeaderBtn');
+            if (hBtn) hBtn.textContent = lang === 'en' ? '🌍' : (LANG_FLAGS[lang] || '🌍');
             // Language badge
             const badge = document.getElementById('langBadge');
             if (lang !== 'en' && badge) {
