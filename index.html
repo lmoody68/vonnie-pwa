@@ -2183,71 +2183,140 @@
             else renderMatchGame();
         }
 
+        let _gamesBusy = false; // prevent double-tap during transitions
+
         function renderRepeatGame() {
+            _gamesBusy = false;
             const word = KIDS_WORDS[kidsWordIdx];
-            document.getElementById('kidsGameArea').innerHTML = `
-                <div class="game-score">⭐ Stars: ${kidsScore}</div>
+            const stars = '⭐'.repeat(Math.min(kidsScore, 10)) || '—';
+            const area  = document.getElementById('kidsGameArea');
+            area.innerHTML = '';
+
+            // Build UI with createElement to avoid onclick quoting issues
+            area.innerHTML = `
+                <div class="game-score">Stars: ${stars} (${kidsScore})</div>
                 <span class="game-word-display">${word.emoji}</span>
                 <span class="game-word-text">${word.word}</span>
-                <p style="color:#6b7280;font-size:14px;margin-bottom:14px;">Listen, then say the word out loud!</p>
-                <button class="game-btn game-btn-primary" onclick="repeatPlayWord()" style="margin-bottom:10px;">🔊 Hear It Again</button>
-                <br>
-                <button class="game-btn" onclick="repeatGotIt()" style="background:linear-gradient(135deg,#22c55e,#15803d);color:white;box-shadow:0 4px 12px rgba(34,197,94,0.35);">⭐ I Said It!</button>
+                <p style="color:#6b7280;font-size:13px;margin-bottom:16px;">Listen carefully, then say the word out loud!</p>
             `;
-            speak(word.word);
-        }
 
-        function repeatPlayWord() {
-            speak(KIDS_WORDS[kidsWordIdx].word);
-        }
+            const hearBtn = document.createElement('button');
+            hearBtn.className = 'game-btn game-btn-primary';
+            hearBtn.textContent = '🔊 Hear It Again';
+            hearBtn.style.marginBottom = '10px';
+            hearBtn.style.width = '80%';
+            hearBtn.addEventListener('click', () => {
+                window.speechSynthesis.cancel();
+                speak(word.word);
+            });
 
-        function repeatGotIt() {
-            kidsScore++;
-            kidsWordIdx = (kidsWordIdx + 1) % KIDS_WORDS.length;
-            speak("Great job! ⭐");
-            const area = document.getElementById('kidsGameArea');
-            area.classList.add('celebrating');
-            setTimeout(() => { area.classList.remove('celebrating'); renderRepeatGame(); }, 800);
+            const gotBtn = document.createElement('button');
+            gotBtn.className = 'game-btn';
+            gotBtn.textContent = '⭐ I Said It!';
+            gotBtn.style.cssText = 'background:linear-gradient(135deg,#22c55e,#15803d);color:white;box-shadow:0 4px 12px rgba(34,197,94,0.35);width:80%;margin-top:8px;';
+            gotBtn.addEventListener('click', () => {
+                if (_gamesBusy) return;
+                _gamesBusy = true;
+                kidsScore++;
+                hearBtn.disabled = true;
+                gotBtn.disabled  = true;
+                gotBtn.textContent = '🌟 Amazing!';
+                window.speechSynthesis.cancel();
+                speak('Great job!');
+                area.classList.add('celebrating');
+                setTimeout(() => {
+                    area.classList.remove('celebrating');
+                    kidsWordIdx = (kidsWordIdx + 1) % KIDS_WORDS.length;
+                    renderRepeatGame();
+                }, 1400);
+            });
+
+            area.appendChild(hearBtn);
+            area.appendChild(document.createElement('br'));
+            area.appendChild(gotBtn);
+
+            // Speak the word after a short delay so the UI renders first
+            setTimeout(() => { window.speechSynthesis.cancel(); speak(word.word); }, 300);
         }
 
         function renderMatchGame() {
+            _gamesBusy = false;
             const correct = KIDS_WORDS[kidsWordIdx];
-            // Pick 3 wrong answers
-            let pool = KIDS_WORDS.filter((_, i) => i !== kidsWordIdx);
-            pool = pool.sort(() => Math.random()-0.5).slice(0,3);
-            const choices = [...pool, correct].sort(() => Math.random()-0.5);
+            let pool = KIDS_WORDS.filter((_, i) => i !== kidsWordIdx)
+                                 .sort(() => Math.random() - 0.5).slice(0, 3);
+            const choices = [...pool, correct].sort(() => Math.random() - 0.5);
+            const area = document.getElementById('kidsGameArea');
+            area.innerHTML = '';
 
-            document.getElementById('kidsGameArea').innerHTML = `
-                <div class="game-score">⭐ Score: ${kidsScore}</div>
-                <span class="game-word-display" id="matchEmoji">${correct.emoji}</span>
-                <p style="color:#2d1a4e;font-size:16px;font-weight:700;margin-bottom:14px;">What is this called?</p>
-                <div class="game-answer-grid">
-                    ${choices.map(c => `<button class="game-choice" onclick="checkMatch('${c.word}','${correct.word}',this)">${c.word}</button>`).join('')}
-                </div>
-            `;
-            speak("What is this called?");
-            setTimeout(() => speak(correct.word), 1200);
-        }
+            const score = document.createElement('div');
+            score.className = 'game-score';
+            score.textContent = `Score: ${kidsScore}`;
+            area.appendChild(score);
 
-        function checkMatch(chosen, correct, el) {
-            if (chosen === correct) {
-                el.classList.add('correct');
-                kidsScore++;
-                speak(`That's right! ${correct}!`);
-                setTimeout(() => {
-                    document.getElementById('kidsGameArea').classList.add('celebrating');
-                    setTimeout(() => {
-                        document.getElementById('kidsGameArea').classList.remove('celebrating');
-                        kidsWordIdx = (kidsWordIdx + 1) % KIDS_WORDS.length;
-                        renderMatchGame();
-                    }, 800);
-                }, 300);
-            } else {
-                el.classList.add('wrong');
-                el.classList.add('shaking');
-                speak(`Try again! Listen — ${correct}.`);
-                setTimeout(() => { el.classList.remove('wrong','shaking'); }, 800);
-            }
+            const emoji = document.createElement('span');
+            emoji.className = 'game-word-display';
+            emoji.textContent = correct.emoji;
+            area.appendChild(emoji);
+
+            const question = document.createElement('p');
+            question.style.cssText = 'color:#2d1a4e;font-size:16px;font-weight:700;margin-bottom:14px;';
+            question.textContent = 'What is this called?';
+            area.appendChild(question);
+
+            const grid = document.createElement('div');
+            grid.className = 'game-answer-grid';
+
+            choices.forEach(c => {
+                const btn = document.createElement('button');
+                btn.className = 'game-choice';
+                btn.textContent = c.word;
+                btn.addEventListener('click', () => {
+                    if (_gamesBusy) return;
+                    _gamesBusy = true;
+                    // Disable all choices immediately
+                    grid.querySelectorAll('.game-choice').forEach(b => b.disabled = true);
+                    window.speechSynthesis.cancel();
+
+                    if (c.word === correct.word) {
+                        btn.classList.add('correct');
+                        kidsScore++;
+                        score.textContent = `Score: ${kidsScore}`;
+                        speak('Thats right! ' + correct.word);
+                        area.classList.add('celebrating');
+                        setTimeout(() => {
+                            area.classList.remove('celebrating');
+                            kidsWordIdx = (kidsWordIdx + 1) % KIDS_WORDS.length;
+                            renderMatchGame();
+                        }, 1600);
+                    } else {
+                        btn.classList.add('wrong');
+                        btn.classList.add('shaking');
+                        // Highlight the correct answer
+                        grid.querySelectorAll('.game-choice').forEach(b => {
+                            if (b.textContent === correct.word) b.classList.add('correct');
+                        });
+                        speak('Try again. It is ' + correct.word);
+                        setTimeout(() => {
+                            btn.classList.remove('wrong', 'shaking');
+                            grid.querySelectorAll('.game-choice').forEach(b => {
+                                b.classList.remove('correct');
+                                b.disabled = false;
+                            });
+                            _gamesBusy = false;
+                        }, 1500);
+                    }
+                });
+                grid.appendChild(btn);
+            });
+
+            area.appendChild(grid);
+
+            // Speak after render: question first, then the word
+            setTimeout(() => {
+                window.speechSynthesis.cancel();
+                speak('What is this called?');
+                setTimeout(() => speak(correct.word), 1300);
+            }, 400);
         }
 
         /* ============================
