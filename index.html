@@ -2184,6 +2184,7 @@
             {emoji:'🤩',label:'Yay!',     phrase:'I am so excited!',         color:'#f0fdf4',accent:'#16a34a'},
             {emoji:'😤',label:'Mad',      phrase:'I am upset',               color:'#fee2e2',accent:'#9f1239'},
             {emoji:'🙏',label:'Please',   phrase:'Please',                   color:'#ede9fe',accent:'#7c3aed'},
+            {emoji:'📺',label:'Watch TV', phrase:'I want to watch TV please', color:'#e0f2fe',accent:'#0284c7'},
         ];
 
         const KIDS_WORDS = [
@@ -2195,6 +2196,16 @@
             {emoji:'👁️',word:'Eye'},   {emoji:'👂',word:'Ear'},  {emoji:'👃',word:'Nose'},
             {emoji:'👄',word:'Mouth'}, {emoji:'⭐',word:'Star'},
         ];
+
+        function showKidsGameWelcome() {
+            document.querySelectorAll('.kids-game-tab').forEach(b => b.classList.remove('active'));
+            document.getElementById('kidsGameArea').innerHTML = `
+                <div style="padding:32px 20px;text-align:center;color:#9ca3af;">
+                    <div style="font-size:52px;margin-bottom:14px;">🎮</div>
+                    <div style="font-size:16px;font-weight:700;color:#5b3fa0;margin-bottom:8px;">Ready to play?</div>
+                    <div style="font-size:13px;line-height:1.6;">Tap <strong>🎤 Repeat After Me</strong> or <strong>🎯 Word Match</strong><br>above to start a speech game!</div>
+                </div>`;
+        }
 
         function toggleKidsMode() {
             if (caregiverModeActive) toggleCaregiverMode(); // exit caregiver first
@@ -2209,8 +2220,8 @@
                 PATIENT_IDS.forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
                 document.querySelectorAll('.say-anything-btn').forEach(el => el.style.display='none');
                 renderKidsButtons();
-                showKidsGame('repeat', document.querySelector('.kids-game-tab'));
-                speak("Hi! I'm Vonnie. Let's have fun and practice words together!");
+                showKidsGameWelcome();
+                speak("Hi! I'm Vonnie. Tap a button to talk, or pick a game to practice words!");
             } else {
                 btn.textContent = '⭐ Kids';
                 btn.style.background = 'rgba(255,200,0,0.2)';
