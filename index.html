@@ -2035,19 +2035,36 @@
             return (LANG_VOICE_TAGS[lang] || ['en-US'])[0];
         }
 
+        // English names shown as subtitles so users know what they're selecting
+        const LANG_ENGLISH = {
+            en:'English',      es:'Spanish',       fr:'French',        ar:'Arabic',
+            zh:'Mandarin',     vi:'Vietnamese',    ht:'Haitian Creole',pt:'Portuguese',
+            tl:'Filipino',     ko:'Korean',        hi:'Hindi',         ru:'Russian',
+            ja:'Japanese',     de:'German',        it:'Italian',       pl:'Polish',
+            uk:'Ukrainian',    yue:'Cantonese',    so:'Somali',        fa:'Farsi/Persian',
+            pa:'Punjabi',      am:'Amharic',       bn:'Bengali',       my:'Burmese',
+            sw:'Swahili',      ne:'Nepali'
+        };
+
         function showLangPicker() {
             const grid = document.getElementById('langPickerGrid');
             if (grid) {
-                grid.innerHTML = Object.keys(LANG_NAMES).map(code =>
-                    `<button onclick="setLanguage('${code}');hideLangPicker()"
-                        style="padding:10px 6px;border-radius:12px;border:2px solid ${code===currentLang?'#7c3aed':'#ede9fe'};
-                               background:${code===currentLang?'#f5f0ff':'white'};font-size:13px;font-weight:600;
-                               color:#2d1a4e;cursor:pointer;text-align:center;display:flex;flex-direction:column;
-                               align-items:center;gap:3px;">
+                grid.innerHTML = Object.keys(LANG_NAMES).map(code => {
+                    const isActive = code === currentLang;
+                    const engName  = LANG_ENGLISH[code] || code;
+                    const natName  = LANG_NAMES[code];
+                    return `<button onclick="setLanguage('${code}');hideLangPicker()"
+                        title="${engName}"
+                        style="padding:10px 6px;border-radius:12px;
+                               border:2px solid ${isActive?'#7c3aed':'#ede9fe'};
+                               background:${isActive?'#f5f0ff':'white'};
+                               cursor:pointer;text-align:center;display:flex;
+                               flex-direction:column;align-items:center;gap:2px;">
                         <span style="font-size:22px;">${LANG_FLAGS[code]}</span>
-                        <span style="font-size:11px;">${LANG_NAMES[code]}</span>
-                    </button>`
-                ).join('');
+                        <span style="font-size:11px;font-weight:700;color:#2d1a4e;">${engName}</span>
+                        <span style="font-size:10px;color:#9ca3af;">${natName}</span>
+                    </button>`;
+                }).join('');
             }
             document.getElementById('langPickerModal').classList.add('show');
         }
@@ -2058,9 +2075,16 @@
         function buildLangSelector() {
             const sel = document.getElementById('langSelector');
             if (!sel) return;
-            sel.innerHTML = Object.keys(LANG_NAMES).map(code =>
-                `<button class="lang-btn ${code === currentLang ? 'active' : ''}" onclick="setLanguage('${code}')">${LANG_FLAGS[code]} ${LANG_NAMES[code]}</button>`
-            ).join('');
+            sel.innerHTML = Object.keys(LANG_NAMES).map(code => {
+                const engName = LANG_ENGLISH[code] || code;
+                const natName = LANG_NAMES[code];
+                const label   = code === 'en' ? engName : `${engName} (${natName})`;
+                return `<button class="lang-btn ${code === currentLang ? 'active' : ''}"
+                    onclick="setLanguage('${code}')"
+                    title="${engName}">
+                    ${LANG_FLAGS[code]} ${label}
+                </button>`;
+            }).join('');
         }
 
         function setLanguage(lang) {
