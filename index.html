@@ -10,6 +10,14 @@
     <title>V.O.N.N.I.E.</title>
 
     <style>
+        /* ── Drag & Drop Reorder ── */
+        .reorder-active .btn { cursor: grab !important; }
+        .reorder-active .btn::after { content:'⠿'; position:absolute; top:4px; right:6px; font-size:14px; color:rgba(0,0,0,0.25); pointer-events:none; }
+        .btn.drag-over { outline:3px dashed #7c3aed; outline-offset:2px; }
+        .btn.dragging  { opacity:0.35; }
+        #reorderBanner { display:none; background:linear-gradient(135deg,#5b3fa0,#7c3aed); color:white; padding:11px 18px; align-items:center; justify-content:space-between; gap:12px; font-size:13px; font-weight:600; position:sticky; top:72px; z-index:90; }
+        #reorderBanner.show { display:flex; }
+        .reorder-done-btn { background:white; color:#5b3fa0; border:none; border-radius:8px; padding:7px 16px; font-size:13px; font-weight:800; cursor:pointer; white-space:nowrap; }
         /* ── Language Selector ── */
         .lang-selector { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 4px; }
         .lang-btn { padding:8px 14px; border-radius:20px; border:2px solid #ddd6fe; background:white; font-size:13px; font-weight:700; color:#5b3fa0; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:5px; }
@@ -303,6 +311,12 @@
             <button id="langHeaderBtn" onclick="showLangPicker()" style="font-size:18px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:10px;cursor:pointer;padding:6px 10px;color:white;line-height:1;" aria-label="Language">🌍</button>
             <button onclick="showSettings()" style="font-size: 24px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; cursor: pointer; padding: 8px; color: white;" aria-label="Settings">⚙️</button>
         </div>
+    </div>
+
+    <!-- REORDER BANNER -->
+    <div id="reorderBanner">
+        <span>⠿ Drag buttons to rearrange — changes save automatically</span>
+        <button class="reorder-done-btn" onclick="exitReorderMode()">✓ Done</button>
     </div>
 
     <!-- TRIAL BANNER (shown below header) -->
@@ -601,7 +615,8 @@
                 V.O.N.N.I.E. works fully offline. All phrases are saved on your device.
             </div>
 
-            <button onclick="openBtnEditor()" style="width:100%;padding:14px;background:#f0fdf4;border:2px solid #22c55e;border-radius:10px;color:#15803d;font-size:15px;font-weight:700;cursor:pointer;margin-top:20px;">✏️ Edit My Buttons</button>
+            <button onclick="enterReorderMode();hideSettings();" style="width:100%;padding:14px;background:#f5f0ff;border:2px solid #ddd6fe;border-radius:10px;color:#5b3fa0;font-size:15px;font-weight:700;cursor:pointer;margin-top:20px;">⠿ Rearrange Buttons</button>
+            <button onclick="openBtnEditor()" style="width:100%;padding:14px;background:#f0fdf4;border:2px solid #22c55e;border-radius:10px;color:#15803d;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px;">✏️ Edit My Buttons</button>
 
             <!-- Cloud Backup / Restore -->
             <div id="restoreCodeBox" style="display:none;margin-top:16px;background:linear-gradient(135deg,#fdf4ff,#f5f0ff);border:2px solid #ddd6fe;border-radius:14px;padding:14px 16px;">
@@ -876,6 +891,7 @@
             renderButtons(secondaryButtons, 'secondaryButtons');
             renderCustomButtons();
             updateRestoreCodeDisplay();
+            setTimeout(applyReorderState, 50); // after render completes
             loadVoices();
             updateUIFromSettings();
             updateConnectionStatus();
@@ -2394,6 +2410,148 @@
                 speak('What is this called?');
                 setTimeout(() => speak(correct.word), 1300);
             }, 400);
+        }
+
+        /* ============================
+           DRAG & DROP REORDER
+        ============================ */
+        let reorderMode = false;
+        let _dndSrc     = null;
+        let _touchDrag  = null;
+        const REORDER_IDS = ['buttons','secondaryButtons','customButtons','facilityButtons'];
+
+        function enterReorderMode() {
+            reorderMode = true;
+            document.getElementById('reorderBanner').classList.add('show');
+            document.body.classList.add('reorder-active');
+            REORDER_IDS.forEach(id => {
+                const c = document.getElementById(id);
+                if (c) [...c.children].forEach(el => { if (el.classList.contains('btn')) el.setAttribute('draggable','true'); });
+            });
+        }
+
+        function exitReorderMode() {
+            reorderMode = false;
+            document.getElementById('reorderBanner').classList.remove('show');
+            document.body.classList.remove('reorder-active');
+            REORDER_IDS.forEach(id => {
+                const c = document.getElementById(id);
+                if (c) [...c.children].forEach(el => { el.removeAttribute('draggable'); el.classList.remove('dragging','drag-over'); });
+            });
+            saveReorderState();
+        }
+
+        // Desktop DnD
+        document.addEventListener('dragstart', e => {
+            if (!reorderMode) return;
+            _dndSrc = e.target.closest('.btn[draggable]');
+            if (!_dndSrc) return;
+            e.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => _dndSrc && _dndSrc.classList.add('dragging'), 0);
+        });
+        document.addEventListener('dragover', e => {
+            if (!reorderMode || !_dndSrc) return;
+            e.preventDefault();
+            const t = e.target.closest('.btn');
+            if (t && t !== _dndSrc && t.parentNode === _dndSrc.parentNode) {
+                document.querySelectorAll('.btn.drag-over').forEach(b => b.classList.remove('drag-over'));
+                t.classList.add('drag-over');
+            }
+        });
+        document.addEventListener('drop', e => {
+            if (!reorderMode || !_dndSrc) return;
+            e.preventDefault();
+            const t = e.target.closest('.btn');
+            if (t && t !== _dndSrc && t.parentNode === _dndSrc.parentNode) {
+                const c = t.parentNode;
+                if ([...c.children].indexOf(_dndSrc) < [...c.children].indexOf(t))
+                    c.insertBefore(_dndSrc, t.nextSibling);
+                else c.insertBefore(_dndSrc, t);
+                t.classList.remove('drag-over');
+            }
+        });
+        document.addEventListener('dragend', () => {
+            if (_dndSrc) { _dndSrc.classList.remove('dragging'); _dndSrc = null; }
+            document.querySelectorAll('.btn.drag-over').forEach(b => b.classList.remove('drag-over'));
+            if (reorderMode) saveReorderState();
+        });
+
+        // Touch / Mobile DnD
+        document.addEventListener('touchstart', e => {
+            if (!reorderMode) return;
+            const btn = e.target.closest('.btn[draggable]');
+            if (!btn) return;
+            const touch = e.touches[0];
+            const rect  = btn.getBoundingClientRect();
+            const clone = btn.cloneNode(true);
+            clone.style.cssText = `position:fixed;z-index:9999;pointer-events:none;opacity:0.85;
+                width:${rect.width}px;height:${rect.height}px;left:${rect.left}px;top:${rect.top}px;
+                transform:scale(1.07);box-shadow:0 14px 36px rgba(0,0,0,0.28);border-radius:18px;`;
+            document.body.appendChild(clone);
+            btn.classList.add('dragging');
+            _touchDrag = { el:btn, clone, container:btn.parentNode,
+                           offX:touch.clientX-rect.left, offY:touch.clientY-rect.top };
+            e.preventDefault();
+        }, { passive:false });
+
+        document.addEventListener('touchmove', e => {
+            if (!_touchDrag) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            const { clone, offX, offY, container, el } = _touchDrag;
+            clone.style.left = (touch.clientX - offX) + 'px';
+            clone.style.top  = (touch.clientY - offY) + 'px';
+            clone.style.display = 'none';
+            const under = document.elementFromPoint(touch.clientX, touch.clientY);
+            clone.style.display = '';
+            const t = under && under.closest('.btn');
+            document.querySelectorAll('.btn.drag-over').forEach(b => b.classList.remove('drag-over'));
+            if (t && t !== el && t.parentNode === container) t.classList.add('drag-over');
+        }, { passive:false });
+
+        document.addEventListener('touchend', e => {
+            if (!_touchDrag) return;
+            const touch = e.changedTouches[0];
+            const { el, clone, container } = _touchDrag;
+            clone.style.display = 'none';
+            const under = document.elementFromPoint(touch.clientX, touch.clientY);
+            clone.style.display = '';
+            const t = under && under.closest('.btn');
+            if (t && t !== el && t.parentNode === container) {
+                if ([...container.children].indexOf(el) < [...container.children].indexOf(t))
+                    container.insertBefore(el, t.nextSibling);
+                else container.insertBefore(el, t);
+            }
+            document.querySelectorAll('.btn.drag-over').forEach(b => b.classList.remove('drag-over'));
+            el.classList.remove('dragging');
+            clone.remove();
+            _touchDrag = null;
+            if (reorderMode) saveReorderState();
+        });
+
+        function saveReorderState() {
+            const order = {};
+            REORDER_IDS.forEach(id => {
+                const c = document.getElementById(id);
+                if (c && c.children.length) {
+                    order[id] = [...c.children].map(el => el.id || '').filter(Boolean);
+                }
+            });
+            localStorage.setItem('vonnie_btn_order', JSON.stringify(order));
+        }
+
+        function applyReorderState() {
+            try {
+                const order = JSON.parse(localStorage.getItem('vonnie_btn_order') || '{}');
+                REORDER_IDS.forEach(id => {
+                    const c = document.getElementById(id);
+                    if (!c || !order[id]) return;
+                    order[id].forEach(btnId => {
+                        const el = c.querySelector(`#${btnId}`);
+                        if (el) c.appendChild(el);
+                    });
+                });
+            } catch(e) {}
         }
 
         /* ============================
