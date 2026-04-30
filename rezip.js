@@ -18,6 +18,7 @@ const ENTRIES = [
     'flier.html',
     'admin.html',
     'guide.html',
+    'vonnie-sign-language-patent-plan.html',
 ];
 
 // ---- minimal zip builder (no npm deps) ----

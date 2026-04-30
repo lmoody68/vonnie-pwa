@@ -2213,6 +2213,35 @@
             {emoji:'👄',word:'Mouth'}, {emoji:'⭐',word:'Star'},
         ];
 
+        // Translated words for Kids Mode games — same order as KIDS_WORDS
+        // [Cat, Dog, Ball, Car, Sun, Moon, Book, Tree, Fish, Bird, Cake, Milk, Shoe, Hat, Hand, Eye, Ear, Nose, Mouth, Star]
+        const KIDS_WORD_LANG = {
+            es:['Gato','Perro','Pelota','Carro','Sol','Luna','Libro','Árbol','Pez','Pájaro','Pastel','Leche','Zapato','Sombrero','Mano','Ojo','Oreja','Nariz','Boca','Estrella'],
+            fr:['Chat','Chien','Balle','Voiture','Soleil','Lune','Livre','Arbre','Poisson','Oiseau','Gâteau','Lait','Chaussure','Chapeau','Main','Œil','Oreille','Nez','Bouche','Étoile'],
+            ar:['قطة','كلب','كرة','سيارة','شمس','قمر','كتاب','شجرة','سمكة','طائر','كعكة','حليب','حذاء','قبعة','يد','عين','أذن','أنف','فم','نجمة'],
+            zh:['猫','狗','球','车','太阳','月亮','书','树','鱼','鸟','蛋糕','牛奶','鞋','帽子','手','眼睛','耳朵','鼻子','嘴','星星'],
+            yue:['貓','狗','球','車','太陽','月亮','書','樹','魚','雀','蛋糕','牛奶','鞋','帽','手','眼','耳','鼻','口','星星'],
+            vi:['Mèo','Chó','Bóng','Xe','Mặt trời','Mặt trăng','Sách','Cây','Cá','Chim','Bánh','Sữa','Giày','Mũ','Tay','Mắt','Tai','Mũi','Miệng','Sao'],
+            pt:['Gato','Cachorro','Bola','Carro','Sol','Lua','Livro','Árvore','Peixe','Pássaro','Bolo','Leite','Sapato','Chapéu','Mão','Olho','Orelha','Nariz','Boca','Estrela'],
+            ko:['고양이','강아지','공','자동차','태양','달','책','나무','물고기','새','케이크','우유','신발','모자','손','눈','귀','코','입','별'],
+            ja:['猫','犬','ボール','車','太陽','月','本','木','魚','鳥','ケーキ','牛乳','靴','帽子','手','目','耳','鼻','口','星'],
+            hi:['बिल्ली','कुत्ता','गेंद','गाड़ी','सूरज','चाँद','किताब','पेड़','मछली','पक्षी','केक','दूध','जूता','टोपी','हाथ','आँख','कान','नाक','मुँह','तारा'],
+            ru:['Кошка','Собака','Мяч','Машина','Солнце','Луна','Книга','Дерево','Рыба','Птица','Торт','Молоко','Туфля','Шляпа','Рука','Глаз','Ухо','Нос','Рот','Звезда'],
+            de:['Katze','Hund','Ball','Auto','Sonne','Mond','Buch','Baum','Fisch','Vogel','Kuchen','Milch','Schuh','Hut','Hand','Auge','Ohr','Nase','Mund','Stern'],
+            it:['Gatto','Cane','Palla','Macchina','Sole','Luna','Libro','Albero','Pesce','Uccello','Torta','Latte','Scarpa','Cappello','Mano','Occhio','Orecchio','Naso','Bocca','Stella'],
+            pl:['Kot','Pies','Piłka','Samochód','Słońce','Księżyc','Książka','Drzewo','Ryba','Ptak','Ciasto','Mleko','But','Kapelusz','Ręka','Oko','Ucho','Nos','Usta','Gwiazda'],
+            uk:['Кішка','Собака','М\'яч','Машина','Сонце','Місяць','Книга','Дерево','Риба','Птах','Торт','Молоко','Туфля','Капелюх','Рука','Очей','Вухо','Ніс','Рот','Зірка'],
+            tl:['Pusa','Aso','Bola','Sasakyan','Araw','Buwan','Libro','Puno','Isda','Ibon','Cake','Gatas','Sapatos','Sombrero','Kamay','Mata','Tenga','Ilong','Bibig','Bituin'],
+            bn:['বিড়াল','কুকুর','বল','গাড়ি','সূর্য','চাঁদ','বই','গাছ','মাছ','পাখি','কেক','দুধ','জুতা','টুপি','হাত','চোখ','কান','নাক','মুখ','তারা'],
+            sw:['Paka','Mbwa','Mpira','Gari','Jua','Mwezi','Kitabu','Mti','Samaki','Ndege','Keki','Maziwa','Kiatu','Kofia','Mkono','Jicho','Sikio','Pua','Mdomo','Nyota'],
+            ne:['बिरालो','कुकुर','बल','गाडी','सूर्य','चन्द्र','किताब','रूख','माछा','चरा','केक','दूध','जुत्ता','टोपी','हात','आँखा','कान','नाक','मुख','तारा'],
+        };
+
+        function getKidsWord(idx) {
+            const translated = KIDS_WORD_LANG[currentLang];
+            return translated ? translated[idx] : KIDS_WORDS[idx].word;
+        }
+
         function showKidsGameWelcome() {
             document.querySelectorAll('.kids-game-tab').forEach(b => b.classList.remove('active'));
             document.getElementById('kidsGameArea').innerHTML = `
@@ -2280,16 +2309,16 @@
 
         function renderRepeatGame() {
             _gamesBusy = false;
-            const word = KIDS_WORDS[kidsWordIdx];
+            const word       = KIDS_WORDS[kidsWordIdx];
+            const spokenWord = getKidsWord(kidsWordIdx); // translated word
             const stars = '⭐'.repeat(Math.min(kidsScore, 10)) || '—';
             const area  = document.getElementById('kidsGameArea');
             area.innerHTML = '';
 
-            // Build UI with createElement to avoid onclick quoting issues
             area.innerHTML = `
                 <div class="game-score">Stars: ${stars} (${kidsScore})</div>
                 <span class="game-word-display">${word.emoji}</span>
-                <span class="game-word-text">${word.word}</span>
+                <span class="game-word-text">${spokenWord}</span>
                 <p style="color:#6b7280;font-size:13px;margin-bottom:16px;">Listen carefully, then say the word out loud!</p>
             `;
 
@@ -2300,7 +2329,7 @@
             hearBtn.style.width = '80%';
             hearBtn.addEventListener('click', () => {
                 window.speechSynthesis.cancel();
-                speak(word.word);
+                speak(spokenWord);
             });
 
             const gotBtn = document.createElement('button');
@@ -2328,13 +2357,14 @@
             area.appendChild(document.createElement('br'));
             area.appendChild(gotBtn);
 
-            // Speak the word after a short delay so the UI renders first
-            setTimeout(() => { window.speechSynthesis.cancel(); speak(word.word); }, 300);
+            // Speak the translated word after render
+            setTimeout(() => { window.speechSynthesis.cancel(); speak(spokenWord); }, 300);
         }
 
         function renderMatchGame() {
             _gamesBusy = false;
-            const correct = KIDS_WORDS[kidsWordIdx];
+            const correct       = KIDS_WORDS[kidsWordIdx];
+            const correctSpoken = getKidsWord(kidsWordIdx);
             let pool = KIDS_WORDS.filter((_, i) => i !== kidsWordIdx)
                                  .sort(() => Math.random() - 0.5).slice(0, 3);
             const choices = [...pool, correct].sort(() => Math.random() - 0.5);
@@ -2359,14 +2389,16 @@
             const grid = document.createElement('div');
             grid.className = 'game-answer-grid';
 
-            choices.forEach(c => {
+            choices.forEach((c, ci) => {
+                const choiceIdx    = KIDS_WORDS.indexOf(c);
+                const choiceSpoken = getKidsWord(choiceIdx);
                 const btn = document.createElement('button');
                 btn.className = 'game-choice';
-                btn.textContent = c.word;
+                btn.textContent = choiceSpoken; // show translated word
+                btn.dataset.isCorrect = (c.word === correct.word) ? '1' : '0';
                 btn.addEventListener('click', () => {
                     if (_gamesBusy) return;
                     _gamesBusy = true;
-                    // Disable all choices immediately
                     grid.querySelectorAll('.game-choice').forEach(b => b.disabled = true);
                     window.speechSynthesis.cancel();
 
@@ -2374,7 +2406,7 @@
                         btn.classList.add('correct');
                         kidsScore++;
                         score.textContent = `Score: ${kidsScore}`;
-                        speak('Thats right! ' + correct.word);
+                        speak('Thats right! ' + correctSpoken);
                         area.classList.add('celebrating');
                         setTimeout(() => {
                             area.classList.remove('celebrating');
@@ -2384,11 +2416,10 @@
                     } else {
                         btn.classList.add('wrong');
                         btn.classList.add('shaking');
-                        // Highlight the correct answer
                         grid.querySelectorAll('.game-choice').forEach(b => {
-                            if (b.textContent === correct.word) b.classList.add('correct');
+                            if (b.dataset.isCorrect === '1') b.classList.add('correct');
                         });
-                        speak('Try again. It is ' + correct.word);
+                        speak('Try again. It is ' + correctSpoken);
                         setTimeout(() => {
                             btn.classList.remove('wrong', 'shaking');
                             grid.querySelectorAll('.game-choice').forEach(b => {
@@ -2408,7 +2439,7 @@
             setTimeout(() => {
                 window.speechSynthesis.cancel();
                 speak('What is this called?');
-                setTimeout(() => speak(correct.word), 1300);
+                setTimeout(() => speak(correctSpoken), 1300);
             }, 400);
         }
 
