@@ -2242,6 +2242,43 @@
             return translated ? translated[idx] : KIDS_WORDS[idx].word;
         }
 
+        // ── Kids Button Phrase Translations ─────────────────────
+        // Order matches KIDS_BUTTONS array exactly:
+        // Happy, Sad, Hungry, Thirsty, Potty, Sleepy, Owie, Hug, Hi,
+        // Love You, Play, Story, Music, Snack, Yes, No, Sick, Yay, Mad, Please, Watch TV
+        const KIDS_BTN_PHRASES = {
+            es:['¡Soy feliz!','Me siento triste','Tengo hambre','Tengo sed','Necesito ir al baño','Tengo sueño','Me duele, ay','Quiero un abrazo','¡Hola!','Te quiero mucho','Quiero jugar','Léeme un cuento','Quiero escuchar música','Quiero un bocadillo','¡Sí!','¡No!','No me siento bien','¡Estoy muy emocionado!','Estoy enojado','Por favor','Quiero ver la televisión'],
+            fr:['Je suis heureux!','Je me sens triste','J\'ai faim','J\'ai soif','J\'ai besoin d\'aller aux toilettes','J\'ai sommeil','Aïe, ça fait mal','Je veux un câlin','Bonjour!','Je t\'aime beaucoup','Je veux jouer','Lis-moi une histoire','Je veux écouter de la musique','Je veux une collation','Oui!','Non!','Je ne me sens pas bien','Je suis tellement excité!','Je suis en colère','S\'il vous plaît','Je veux regarder la télévision'],
+            ar:['أنا سعيد!','أشعر بالحزن','أنا جائع','أنا عطشان','أحتاج إلى الحمام','أنا نعسان','مؤلم، يؤلمني','أريد عناقاً','مرحباً!','أحبك كثيراً','أريد اللعب','اقرأ لي قصة','أريد سماع الموسيقى','أريد وجبة خفيفة','نعم!','لا!','لا أشعر بحال جيد','أنا متحمس جداً!','أنا منزعج','من فضلك','أريد مشاهدة التلفاز'],
+            zh:['我很开心！','我感到难过','我饿了','我渴了','我需要上厕所','我很困','好痛，我受伤了','我想要抱抱','你好！','我非常爱你','我想玩','给我讲个故事','我想听音乐','我想要零食','是！','不！','我感觉不舒服','我好兴奋！','我生气了','请','我想看电视'],
+            yue:['我好開心！','我感到傷心','我肚餓','我口渴','我要去廁所','我好睏','好痛，我受傷了','我想要抱抱','你好！','我好愛你','我想玩','讀故事俾我聽','我想聽音樂','我想要零食','係！','唔係！','我唔舒服','我好興奮！','我唔高興','唔該','我想睇電視'],
+            vi:['Tôi vui lắm!','Tôi cảm thấy buồn','Tôi đói','Tôi khát','Tôi cần đi vệ sinh','Tôi buồn ngủ','Đau quá','Tôi muốn ôm','Xin chào!','Con yêu mẹ rất nhiều','Tôi muốn chơi','Đọc truyện cho tôi nghe','Tôi muốn nghe nhạc','Tôi muốn ăn vặt','Có!','Không!','Con không khỏe','Con rất hào hứng!','Con tức giận','Làm ơn','Con muốn xem TV'],
+            pt:['Estou feliz!','Estou triste','Estou com fome','Estou com sede','Preciso ir ao banheiro','Estou com sono','Ai, está doendo','Quero um abraço','Olá!','Eu te amo muito','Quero brincar','Me leia uma história','Quero ouvir música','Quero um lanche','Sim!','Não!','Não estou me sentindo bem','Estou muito animado!','Estou com raiva','Por favor','Quero assistir TV'],
+            tl:['Masaya ako!','Malungkot ako','Gutom ako','Nauuhaw ako','Kailangan ko ng banyo','Inaantok ako','Aray, masakit','Gusto ko ng yakap','Kumusta!','Mahal kita','Gusto ko maglaro','Magbasa ng kwento','Gusto ko ng musika','Gusto ko ng meryenda','Oo!','Hindi!','Hindi ako maganda ang pakiramdam','Nasasabik ako!','Galit ako','Pakiusap','Gusto ko manood ng TV'],
+            ko:['저 행복해요!','슬퍼요','배고파요','목말라요','화장실 가야 해요','졸려요','아야, 아파요','안아주세요','안녕하세요!','사랑해요','놀고 싶어요','이야기 읽어주세요','음악 듣고 싶어요','간식 먹고 싶어요','네!','아니요!','몸이 안 좋아요','너무 신나요!','화났어요','부탁해요','TV 보고 싶어요'],
+            ja:['嬉しいです！','悲しいです','お腹が空きました','のどが渇きました','トイレに行きたいです','眠いです','痛い、怪我しました','抱っこしてください','こんにちは！','大好きです','遊びたいです','本を読んでください','音楽が聴きたいです','おやつが食べたいです','はい！','いいえ！','気分が悪いです','とても嬉しいです！','怒っています','お願いします','テレビが見たいです'],
+            hi:['मैं खुश हूं!','मुझे दुख है','मुझे भूख लगी है','मुझे प्यास लगी है','मुझे बाथरूम जाना है','मुझे नींद आ रही है','आउच, दर्द हो रहा है','मुझे गले लगाओ','नमस्ते!','मैं तुमसे बहुत प्यार करता हूं','मैं खेलना चाहता हूं','मुझे कहानी सुनाओ','मुझे संगीत सुनना है','मुझे नाश्ता चाहिए','हां!','नहीं!','मैं ठीक नहीं हूं','मैं बहुत उत्साहित हूं!','मैं गुस्से में हूं','कृपया','मैं टीवी देखना चाहता हूं'],
+            ru:['Я счастлив!','Мне грустно','Я голоден','Я хочу пить','Мне нужно в туалет','Я хочу спать','Ай, больно','Обнимите меня','Привет!','Я тебя очень люблю','Я хочу играть','Прочитайте мне сказку','Я хочу слушать музыку','Я хочу перекусить','Да!','Нет!','Мне нехорошо','Я очень взволнован!','Я злюсь','Пожалуйста','Я хочу смотреть телевизор'],
+            de:['Ich bin glücklich!','Ich bin traurig','Ich bin hungrig','Ich bin durstig','Ich muss auf die Toilette','Ich bin müde','Aua, das tut weh','Ich möchte eine Umarmung','Hallo!','Ich liebe dich so sehr','Ich möchte spielen','Lies mir eine Geschichte vor','Ich möchte Musik hören','Ich möchte einen Snack','Ja!','Nein!','Ich fühle mich nicht wohl','Ich bin so aufgeregt!','Ich bin wütend','Bitte','Ich möchte fernsehen'],
+            it:['Sono felice!','Sono triste','Ho fame','Ho sete','Devo andare in bagno','Ho sonno','Ahia, fa male','Voglio un abbraccio','Ciao!','Ti voglio tanto bene','Voglio giocare','Leggimi una storia','Voglio ascoltare musica','Voglio uno spuntino','Sì!','No!','Non mi sento bene','Sono molto eccitato!','Sono arrabbiato','Per favore','Voglio guardare la TV'],
+            pl:['Jestem szczęśliwy!','Jestem smutny','Jestem głodny','Jestem spragniony','Muszę do łazienki','Jestem śpiący','Auć, boli mnie','Chcę przytulenia','Cześć!','Kocham cię bardzo','Chcę się bawić','Przeczytaj mi bajkę','Chcę słuchać muzyki','Chcę przekąskę','Tak!','Nie!','Nie czuję się dobrze','Jestem bardzo podekscytowany!','Jestem zły','Proszę','Chcę oglądać telewizję'],
+            uk:['Я щасливий!','Мені сумно','Я голодний','Я хочу пити','Мені потрібно в туалет','Я хочу спати','Ой, боляче','Обійміть мене','Привіт!','Я тебе дуже люблю','Я хочу гратися','Прочитайте мені казку','Я хочу слухати музику','Я хочу перекусити','Так!','Ні!','Мені погано','Я дуже схвильований!','Я злюся','Будь ласка','Я хочу дивитися телевізор'],
+            so:['Farxad baan qabaa!','Murugo baan qabaa','Gaajaysan ahay','Harraadsan ahay','Suuliga baaan u baanahay','Hurdo baan doonayaa','Xanuun, waa ii xanuunayaa','Garaac ii garaac','Salaan!','Aad ayaan ku jeclahay','Ciyaari rabaa','Sheeko igu akhri','Muusikada ayaan doonayaa','Wax cunay rabaa','Haa!','Maya!','Caafimaad ma qabo','Aad ayaan u faraxsanahay!','Cadhaysan ahay','Fadlan','Telebish ayaan rabaa in aan daawado'],
+            fa:['خوشحالم!','ناراحتم','گرسنه‌ام','تشنه‌ام','باید دستشویی بروم','خوابم می‌آید','آخ، دردم می‌آید','می‌خواهم بغل شوم','سلام!','خیلی دوستت دارم','می‌خواهم بازی کنم','برایم داستان بخوان','می‌خواهم موسیقی گوش دهم','می‌خواهم خوراکی','بله!','نه!','حالم خوب نیست','خیلی هیجان‌زده‌ام!','عصبانی هستم','لطفاً','می‌خواهم تلویزیون ببینم'],
+            pa:['ਮੈਂ ਖੁਸ਼ ਹਾਂ!','ਮੈਂ ਉਦਾਸ ਹਾਂ','ਮੈਨੂੰ ਭੁੱਖ ਲੱਗੀ ਹੈ','ਮੈਨੂੰ ਪਿਆਸ ਲੱਗੀ ਹੈ','ਮੈਨੂੰ ਟਾਇਲਟ ਜਾਣਾ ਹੈ','ਮੈਨੂੰ ਨੀਂਦ ਆ ਰਹੀ ਹੈ','ਆਉਚ, ਦਰਦ ਹੋ ਰਿਹਾ ਹੈ','ਮੈਨੂੰ ਜੱਫੀ ਪਾਓ','ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ!','ਮੈਂ ਤੁਹਾਨੂੰ ਬਹੁਤ ਪਿਆਰ ਕਰਦਾ ਹਾਂ','ਮੈਂ ਖੇਡਣਾ ਚਾਹੁੰਦਾ ਹਾਂ','ਮੈਨੂੰ ਕਹਾਣੀ ਸੁਣਾਓ','ਮੈਂ ਸੰਗੀਤ ਸੁਣਨਾ ਚਾਹੁੰਦਾ ਹਾਂ','ਮੈਨੂੰ ਨਾਸ਼ਤਾ ਚਾਹੀਦਾ ਹੈ','ਹਾਂ!','ਨਹੀਂ!','ਮੈਂ ਠੀਕ ਨਹੀਂ ਹਾਂ','ਮੈਂ ਬਹੁਤ ਉਤਸਾਹਿਤ ਹਾਂ!','ਮੈਂ ਗੁੱਸੇ ਵਿੱਚ ਹਾਂ','ਕਿਰਪਾ ਕਰਕੇ','ਮੈਂ ਟੀਵੀ ਦੇਖਣਾ ਚਾਹੁੰਦਾ ਹਾਂ'],
+            am:['ደስ ይለኛል!','አዝናለሁ','ተርቦኛል','ጥምብኛል','ሽንት ቤት ለመሄድ ፈልጌ ነው','ተኝቶ ያደርጋሉ','አህ፣ ያቀናጃል','ሊያቅፈኝ ፈልጌ ነው','ሰላም!','በጣም እወድሃለሁ','መጫወት ፈልጌ ነው','ታሪክ ንገሩልኝ','ሙዚቃ ለመስማት ፈልጌ ነው','መቆርቆር ፈልጌ ነው','አዎ!','አይ!','ጥሩ ስሜት የለኝም','በጣም ተደሥቻለሁ!','ተናዶ ነኝ','እባክዎ','ቴሌቪዥን ለማየት ፈልጌ ነው'],
+            bn:['আমি খুশি!','আমি দুঃখিত','আমার ক্ষুধা লেগেছে','আমার তৃষ্ণা লেগেছে','আমাকে বাথরুম যেতে হবে','আমার ঘুম পাচ্ছে','আউচ, ব্যথা করছে','আমাকে জড়িয়ে ধরো','হ্যালো!','আমি তোমাকে অনেক ভালোবাসি','আমি খেলতে চাই','আমাকে গল্প পড়ে শোনাও','আমি গান শুনতে চাই','আমি নাস্তা খেতে চাই','হ্যাঁ!','না!','আমি ভালো নেই','আমি খুব উত্তেজিত!','আমি রাগান্বিত','অনুগ্রহ করে','আমি টিভি দেখতে চাই'],
+            my:['ကျွန်တော် ပျော်တယ်!','ကျွန်တော် စိတ်မကောင်းဘူး','ဗိုက်ဆာနေတယ်','ရေဆာနေတယ်','အိမ်သာသွားချင်တယ်','အိပ်ငိုက်နေတယ်','အင်း၊ နာတယ်','ကျွန်တော်ကို ဖက်ပေး','မင်္ဂလာပါ!','ကျွန်တော် မင်းကို ချစ်တယ်','ကစားချင်တယ်','ပုံပြင်ဖတ်ပြ','တေးဂီတနားထောင်ချင်တယ်','မုန့်ကလေးစားချင်တယ်','ဟုတ်ကဲ့!','မဟုတ်ဘူး!','ကျွန်တော် မကောင်းဘူး','ကျွန်တော် တကယ်ဝမ်းသာတယ်!','ကျွန်တော် ဒေါသထွက်တယ်','ကျေးဇူးပြုပြီး','ရုပ်မြင်သံကြားကြည့်ချင်တယ်'],
+            sw:['Nina furaha!','Ninajisikia huzuni','Nina njaa','Nina kiu','Ninahitaji kwenda choo','Ninangoja kulala','Ai, inaumiza','Ninataka kukumbatia','Habari!','Nakupenda sana','Nataka kucheza','Nisomee hadithi','Nataka kusikiliza muziki','Nataka vitafunio','Ndiyo!','Hapana!','Sijisikii vizuri','Nina furaha sana!','Niko na hasira','Tafadhali','Nataka kutazama TV'],
+            ne:['म खुशी छु!','मलाई दुख छ','मलाई भोक लागेको छ','मलाई तिर्खा लागेको छ','मलाई शौचालय जानुछ','मलाई निन्द्रा लागेको छ','आउच, दुख्यो','मलाई अँगाल्नुस्','नमस्ते!','म तिमीलाई धेरै माया गर्छु','मैले खेल्नु छ','मलाई कथा सुनाउनुस्','मलाई संगीत सुन्नु छ','मलाई खाजा खानु छ','हो!','होइन!','मलाई राम्रो लागेको छैन','म धेरै उत्साहित छु!','म रिसाएको छु','कृपया','मलाई टेलिभिजन हेर्नु छ'],
+            ht:['Mwen kontan!','Mwen tris','Mwen grangou','Mwen swaf','Mwen bezwen ale nan twalèt','Mwen anvi dòmi','Aïe, sa fè mal','Mwen vle yon kalins','Bonjou!','Mwen renmen ou anpil','Mwen vle jwe','Li yon istwa pou mwen','Mwen vle koute mizik','Mwen vle yon ti manje','Wi!','Non!','Mwen pa santi bon','Mwen eksite anpil!','Mwen fache','Souple','Mwen vle gade televizyon'],
+        };
+
+        function getKidsBtnPhrase(btn) {
+            if (currentLang === 'en') return btn.phrase;
+            return KIDS_BTN_PHRASES[currentLang]?.[KIDS_BUTTONS.indexOf(btn)] ?? btn.phrase;
+        }
+
         function showKidsGameWelcome() {
             document.querySelectorAll('.kids-game-tab').forEach(b => b.classList.remove('active'));
             document.getElementById('kidsGameArea').innerHTML = `
@@ -2280,7 +2317,7 @@
         function renderKidsButtons() {
             const grid = document.getElementById('kidsButtons');
             grid.innerHTML = '';
-            KIDS_BUTTONS.forEach(btn => {
+            KIDS_BUTTONS.forEach((btn, idx) => {
                 const el = document.createElement('div');
                 el.className = 'btn kids-btn';
                 el.style.background = `linear-gradient(155deg, ${btn.color} 0%, ${btn.color}cc 100%)`;
@@ -2288,9 +2325,11 @@
                 el.style.boxShadow = `0 4px 16px ${btn.accent}28, 0 1px 3px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.85)`;
                 el.innerHTML = `<div class="icon" style="font-size:40px;">${btn.emoji}</div><div class="label" style="font-size:13px;font-weight:800;">${btn.label}</div>`;
                 let tf = false;
-                el.addEventListener('touchstart', e => { e.preventDefault(); tf=true; el.classList.add('pressed'); speak(btn.phrase); }, {passive:false});
+                // Use translated phrase — looks up KIDS_BTN_PHRASES for current language
+                const phrase = KIDS_BTN_PHRASES[currentLang]?.[idx] ?? btn.phrase;
+                el.addEventListener('touchstart', e => { e.preventDefault(); tf=true; el.classList.add('pressed'); speak(phrase); }, {passive:false});
                 el.addEventListener('touchend', () => el.classList.remove('pressed'));
-                el.addEventListener('click', () => { if(tf){tf=false;return;} speak(btn.phrase); });
+                el.addEventListener('click', () => { if(tf){tf=false;return;} speak(phrase); });
                 grid.appendChild(el);
             });
         }
